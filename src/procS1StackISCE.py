@@ -156,10 +156,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
     if csvFile is not None:
         file_subroutines.prepare_files(csvFile)
 
-    filenames = []
-    filedates = []
-	
-    file_subroutines.get_file_list(filenames,filedates)
+    (filenames,filedates) = file_subroutines.get_file_list()
 
     print filenames
     print filedates

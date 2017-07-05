@@ -52,11 +52,8 @@ def procAllS1StackISCE(south,north,west,east,csvFile=None,demFlag=None):
     # If file list is given, download the files and unzip them
     if csvFile is not None:
         prepare_files(csvFile)
-	
-    filenames = []
-    filedates = []
 
-    get_file_list(filenames,filedates)
+    (filenames,filesdates) = get_file_list()
         
     swaths,roi = getSubSwath.SelectAllSubswaths(filenames[0],west,south,east,north)
 

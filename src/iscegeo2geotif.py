@@ -50,7 +50,7 @@ def convert_files():
     for child in rt:
         if child.attrib['name'] == 'width':
             width_str = child[0].text
-	    width = int(width_str)
+            width = int(width_str)
             print "Image width %i" % width
         if child.attrib['name'] == 'length':
             length_str = child[0].text
@@ -75,33 +75,34 @@ def convert_files():
 	    save2 = line
     file.close
     
-    fullPhase.tofile("filt_topophase.unw.phase.bin");
-    makeEnviHdr("filt_topophase.unw.phase.bin.hdr",width,length,save1,save2);
+    fullPhase.tofile("filt_topophase.unw.phase.bin")
+    makeEnviHdr("filt_topophase.unw.phase.bin.hdr",width,length,save1,save2)
     gdal.Translate("phase.tif","filt_topophase.unw.phase.bin",creationOptions = ['COMPRESS=PACKBITS'])
     
-    fullAmp.tofile("filt_topophase.unw.amp.bin");
-    makeEnviHdr("filt_topophase.unw.amp.bin.hdr",width,length,save1,save2);
+    fullAmp.tofile("filt_topophase.unw.amp.bin")
+    makeEnviHdr("filt_topophase.unw.amp.bin.hdr",width,length,save1,save2)
     gdal.Translate("amp.tif","filt_topophase.unw.amp.bin",creationOptions = ['COMPRESS=PACKBITS'])
     
     # Create the coherence image
-    makeEnviHdr("phsig.cor.geo.hdr",width,length,save1,save2);
+    makeEnviHdr("phsig.cor.geo.hdr",width,length,save1,save2)
     gdal.Translate("coherence.tif","phsig.cor.geo",creationOptions = ['COMPRESS=PACKBITS'])
 
 
 def makeEnviHdr(fileName,width,length,save1,save2):
-    f = open(fileName,'w');
-    f.write("ENVI");
-    f.write("description = {Data product generated using ISCE}\n");
-    f.write("samples = %i\n" % width);
-    f.write("lines   = %i\n" %length);
-    f.write("bands   = 1\n");
-    f.write("header offset = 0\n");
-    f.write("file type = ENVI Standard\n");
-    f.write("data type = 4\n");
-    f.write("interleave = bip\n");
-    f.write("byte order = 0\n");
-    f.write("%s\n" % save1);
-    f.write("%s\n" % save2);
+    f = open(fileName,'w')
+    f.write("ENVI")
+    f.write("description = {Data product generated using ISCE}\n")
+    f.write("samples = %i\n" % width)
+    f.write("lines   = %i\n" %length)
+    f.write("bands   = 1\n")
+    f.write("header offset = 0\n")
+    f.write("file type = ENVI Standard\n")
+    f.write("data type = 4\n")
+    f.write("interleave = bip\n")
+    f.write("byte order = 0\n")
+    f.write("%s\n" % save1)
+    f.write("%s\n" % save2)
+    f.close()
 
 def main():
   convert_files()

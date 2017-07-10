@@ -117,6 +117,7 @@ def makeMetadataFile(basedir,ss):
             t = re.split('=',line)
             baseline=t[1]
             print "Found baseline %s" % baseline
+    g.close()
     os.chdir("../..")
     t = re.split(' ',utctime)
     s = re.split(":",t[2])
@@ -126,6 +127,7 @@ def makeMetadataFile(basedir,ss):
     f.write("baseline: %s" % baseline)
     f.write("utctime: %s\n" % utctime)
     f.write("heading: %s" % heading)
+    f.close()
 
 ##########################################################################
 # Main Entry Point
@@ -238,10 +240,10 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
                 print "Processing directory %s" % mydir
                 ss = 'iw'+str(options['swath'])
                 isceProcess(mydir,ss," ")
-	        if os.path.isdir("%s/%s/merged" % (mydir,ss)):
+                if os.path.isdir("%s/%s/merged" % (mydir,ss)):
                     print "Collecting directory %s" % mydir
-		    getImageFiles(mydir,ss)
-		    makeMetadataFile(mydir,ss)
+                    getImageFiles(mydir,ss)
+                    makeMetadataFile(mydir,ss)
 
 ###########################################################################
 

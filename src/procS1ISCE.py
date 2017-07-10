@@ -65,8 +65,8 @@ def createISCEXML(g1,g2,f1,f2,options):
         comp.append(gbb)
     if options['dem']:
         dem = etree.Element('property',name='demfilename')
-	dem.text = '%s' %  os.path.abspath(options['demname'])
-	comp.append(dem)
+        dem.text = '%s' %  os.path.abspath(options['demname'])
+        comp.append(dem)
 	
     for comp in root.findall('component/component'):
         if comp.attrib['name'] == 'master':

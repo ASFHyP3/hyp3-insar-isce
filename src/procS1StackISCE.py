@@ -78,11 +78,14 @@ def makeDirAndXML(date1,date2,file1,file2,demFlag,options):
 
 def getImageFiles(mydir,ss):
     os.chdir("%s/%s/merged" % (mydir,ss))
-    convert_files()
-    copyfile("colorized.jpg","../../../PRODUCT/%s_%s.jpg" % (mydir,ss))
-    copyfile("phase.tif","../../../PRODUCT/%s_%s.phase.tif" % (mydir,ss))
-    copyfile("amp.tif","../../../PRODUCT/%s_%s.amp.tif" % (mydir,ss))
-    copyfile("coherence.tif","../../../PRODUCT/%s_%s.coh.tif" % (mydir,ss))
+    convert_files(True)
+    copyfile("colorized_unw.png","../../../PRODUCT/%s_%s_unw_phase.png" % (mydir,ss))
+    copyfile("colorized_unw.kmz","../../../PRODUCT/%s_%s_unw_phase.kmz" % (mydir,ss))
+    copyfile("color.png","../../../PRODUCT/%s_%s_color_phase.png" % (mydir,ss))
+    copyfile("color.kmz","../../../PRODUCT/%s_%s_color_phase.kmz" % (mydir,ss))
+    copyfile("phase.tif","../../../PRODUCT/%s_%s_unw_phase.tif" % (mydir,ss))
+    copyfile("amp.tif","../../../PRODUCT/%s_%s_amp.tif" % (mydir,ss))
+    copyfile("coherence.tif","../../../PRODUCT/%s_%s_coh.tif" % (mydir,ss))
     os.chdir("../../../")
     
 def makeMetadataFile(basedir,ss):
@@ -117,16 +120,27 @@ def makeMetadataFile(basedir,ss):
             t = re.split('=',line)
             baseline=t[1]
             print "Found baseline %s" % baseline
+	if "geocode.Azimuth looks" in line:
+            t = re.split('=',line)
+            AzLooks=t[1]
+            print "Found azimuth looks %s" % AzLooks
+	if "geocode.Range looks" in line:
+            t = re.split('=',line)
+            RgLooks=t[1]
+            print "Found range looks %s" % RgLooks
     g.close()
     os.chdir("../..")
+
     t = re.split(' ',utctime)
     s = re.split(":",t[2])
     utctime = ((int(s[0])*60+int(s[1]))*60)+float(s[2])
 
     f = open('PRODUCT/%s_%s.txt' % (basedir,ss),'w')
-    f.write("baseline: %s" % baseline)
+    f.write("baseline: %s\n" % baseline)
     f.write("utctime: %s\n" % utctime)
-    f.write("heading: %s" % heading)
+    f.write("heading: %s\n" % heading)
+    f.write("range looks: %s\n" % RgLooks)
+    f.write("azimuth looks: %s\n" % AzLooks)
     f.close()
 
 ##########################################################################

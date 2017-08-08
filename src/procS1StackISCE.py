@@ -92,6 +92,7 @@ def makeMetadataFile(basedir,ss):
    # Get the platform heading
     for mydir in os.listdir("."):
         if ".SAFE" in mydir and os.path.isdir(mydir):
+	    back = os.getcwd()
             os.chdir("%s/annotation" % mydir)
             for myfile in os.listdir("."):
                 if "001.xml" in myfile:
@@ -106,7 +107,7 @@ def makeMetadataFile(basedir,ss):
             else:
                 continue
             break
-    os.chdir("../..")
+    os.chdir(back)
 
     # Get the UTC time and Bperp
     os.chdir("%s/%s" % (basedir,ss))
@@ -114,25 +115,25 @@ def makeMetadataFile(basedir,ss):
     for line in g.readlines():
         if "subset.Overlap 0 start time" in line:
             t = re.split('=',line)
-            utctime=t[1]
+            utctime=t[1].strip()
             print "Found utctime %s" % utctime
         if "Bperp at midrange for first common burst" in line:
             t = re.split('=',line)
-            baseline=t[1]
+            baseline=t[1].strip()
             print "Found baseline %s" % baseline
 	if "geocode.Azimuth looks" in line:
             t = re.split('=',line)
-            AzLooks=t[1]
+            AzLooks=t[1].strip()
             print "Found azimuth looks %s" % AzLooks
 	if "geocode.Range looks" in line:
             t = re.split('=',line)
-            RgLooks=t[1]
+            RgLooks=t[1].strip()
             print "Found range looks %s" % RgLooks
     g.close()
     os.chdir("../..")
 
     t = re.split(' ',utctime)
-    s = re.split(":",t[2])
+    s = re.split(":",t[1])
     utctime = ((int(s[0])*60+int(s[1]))*60)+float(s[2])
 
     f = open('PRODUCT/%s_%s.txt' % (basedir,ss),'w')

@@ -113,7 +113,7 @@ def makeMetadataFile(basedir,ss):
     os.chdir("%s/%s" % (basedir,ss))
     g = open('isce.log','r')
     for line in g.readlines():
-        if "subset.Overlap 0 start time" in line:
+        if "subset.Overlap" in line and "start time" in line:
             t = re.split('=',line)
             utctime=t[1].strip()
             print "Found utctime %s" % utctime
@@ -221,17 +221,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         options['east']=roi[3]
 
     if demFlag:
-        get_dem.get_dem(options['west'],options['south'],options['east'],options['north'],"stack_dem.tif",False)
-
-	# If DEM is from NED13, then it will have a NAD83 ellipse - need to convert to WGS84
-	(x1,y1,t1,p1) = saa.read_gdal_file_geo(saa.open_gdal_file("stack_dem.tif"))
-	if "NAD83" in p1:
-	    gdal.Warp("stack_dem_wgs84.tif","stack_dem.tif", dstSRS="EPSG:4326")
-	    move("stack_dem_wgs84.tif","stack_dem.tif")
-
-        # Convert DEM file into ISCE format
-        gdal.Translate("stack_dem.dem","stack_dem.tif",format="ENVI")
-        dem2isce.dem2isce("stack_dem.dem","stack_dem.hdr","stack_dem.dem.xml")
+        get_dem.get_ISCE_dem(options['west'],options['south'],options['east'],options['north'],"stack_dem.dem","stack_dem.dem.xml")
         options['demname'] = "stack_dem.dem"
 
     length=len(filenames)

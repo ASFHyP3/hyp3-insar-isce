@@ -157,9 +157,9 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
     g2 = slaveSafe
 
     t = re.split('_+',g1)
-    md = t[4][0:8]
+    md = t[4][0:16]
     t = re.split('_+',g2)
-    sd = t[4][0:8]
+    sd = t[4][0:16]
 
     bname = '%s_%s' % (md,sd)
     ssname = 'iw'+str(ss)

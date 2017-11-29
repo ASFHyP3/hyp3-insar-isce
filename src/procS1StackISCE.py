@@ -80,8 +80,10 @@ def getImageFiles(mydir,ss):
     os.chdir("%s/%s/merged" % (mydir,ss))
     convert_files(True)
     copyfile("colorized_unw.png","../../../PRODUCT/%s_%s_unw_phase.png" % (mydir,ss))
+    copyfile("colorized_unw_large.png","../../../PRODUCT/%s_%s_unw_phase_large.png" % (mydir,ss))
     copyfile("colorized_unw.kmz","../../../PRODUCT/%s_%s_unw_phase.kmz" % (mydir,ss))
     copyfile("color.png","../../../PRODUCT/%s_%s_color_phase.png" % (mydir,ss))
+    copyfile("color_large.png","../../../PRODUCT/%s_%s_color_phase_large.png" % (mydir,ss))
     copyfile("color.kmz","../../../PRODUCT/%s_%s_color_phase.kmz" % (mydir,ss))
     copyfile("phase.tif","../../../PRODUCT/%s_%s_unw_phase.tif" % (mydir,ss))
     copyfile("amp.tif","../../../PRODUCT/%s_%s_amp.tif" % (mydir,ss))
@@ -241,7 +243,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
 
         # Run through directories processing ifgs and collecting results as we go
         for mydir in os.listdir("."):
-            if len(mydir) == 17 and os.path.isdir(mydir) and "_20" in mydir:
+            if len(mydir) == 31 and os.path.isdir(mydir) and "_20" in mydir:
                 print "Processing directory %s" % mydir
                 ss = 'iw'+str(options['swath'])
                 isceProcess(mydir,ss," ")

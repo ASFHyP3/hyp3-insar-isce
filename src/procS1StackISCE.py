@@ -91,7 +91,7 @@ def getImageFiles(mydir,ss):
     copyfile("color.kmz","../../../PRODUCT/%s_%s_color_phase.kmz" % (mydir,ss))
     copyfile("phase.tif","../../../PRODUCT/%s_%s_unw_phase.tif" % (mydir,ss))
     copyfile("amp.tif","../../../PRODUCT/%s_%s_amp.tif" % (mydir,ss))
-    copyfile("coherence.tif","../../../PRODUCT/%s_%s_coh.tif" % (mydir,ss))
+    copyfile("coherence.tif","../../../PRODUCT/%s_%s_corr.tif" % (mydir,ss))
     os.chdir("../../../")
     
 def makeMetadataFile(basedir,ss):

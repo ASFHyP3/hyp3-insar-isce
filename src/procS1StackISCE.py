@@ -48,7 +48,7 @@ import argparse
 import file_subroutines
 from procS1ISCE import procS1ISCE
 import saa_func_lib as saa
-
+from get_zone import get_zone
     
 #####################
 #
@@ -76,9 +76,18 @@ def makeDirAndXML(date1,date2,file1,file2,demFlag,options):
     else:
         procS1ISCE(options['swath'],file1,file2,gbb=roi,xmlFlag=True,unwrapFlag=True)
 
-def getImageFiles(mydir,ss):
+def getImageFiles(mydir,ss,options):
     os.chdir("%s/%s/merged" % (mydir,ss))
-    convert_files(True)
+
+    zone = get_zone(options['west'],options['east'])
+    if (options['south']+options['north']) > 0:
+        # Northern hemisphere
+        proj = ('EPSG:326%02d' % int(zone))
+    else:
+        # Southern hemisphere
+        proj = ('EPSG:327%02d' % int(zone))
+
+    convert_files(True,proj=proj)
     copyfile("colorized_unw.png","../../../PRODUCT/%s_%s_unw_phase.png" % (mydir,ss))
     copyfile("colorized_unw.png.aux.xml","../../../PRODUCT/%s_%s_unw_phase.png.aux.xml" % (mydir,ss))
     copyfile("colorized_unw_large.png","../../../PRODUCT/%s_%s_unw_phase_large.png" % (mydir,ss))
@@ -253,7 +262,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
                 isceProcess(mydir,ss," ")
                 if os.path.isdir("%s/%s/merged" % (mydir,ss)):
                     print "Collecting directory %s" % mydir
-                    getImageFiles(mydir,ss)
+                    getImageFiles(mydir,ss,options)
                     makeMetadataFile(mydir,ss)
 
 ###########################################################################

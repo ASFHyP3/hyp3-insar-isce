@@ -87,7 +87,7 @@ def getImageFiles(mydir,ss,options):
         # Southern hemisphere
         proj = ('EPSG:327%02d' % int(zone))
 
-    convert_files(True,proj=proj)
+    convert_files(True,proj=proj,res=30)
     copyfile("colorized_unw.png","../../../PRODUCT/%s_%s_unw_phase.png" % (mydir,ss))
     copyfile("colorized_unw.png.aux.xml","../../../PRODUCT/%s_%s_unw_phase.png.aux.xml" % (mydir,ss))
     copyfile("colorized_unw_large.png","../../../PRODUCT/%s_%s_unw_phase_large.png" % (mydir,ss))

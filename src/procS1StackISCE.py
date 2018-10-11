@@ -48,7 +48,6 @@ import argparse
 import file_subroutines
 from procS1ISCE import procS1ISCE
 import saa_func_lib as saa
-from get_zone import get_zone
     
 #####################
 #
@@ -78,15 +77,7 @@ def makeDirAndXML(date1,date2,file1,file2,demFlag,options):
 
 def getImageFiles(mydir,ss,options):
     os.chdir("%s/%s/merged" % (mydir,ss))
-
-    zone = get_zone(options['west'],options['east'])
-    if (options['south']+options['north']) > 0:
-        # Northern hemisphere
-        proj = ('EPSG:326%02d' % int(zone))
-    else:
-        # Southern hemisphere
-        proj = ('EPSG:327%02d' % int(zone))
-
+    proj = saa.get_utm_proj(options['west'],options['east'],options['south'],options['north'])
     convert_files(True,proj=proj,res=30)
     copyfile("colorized_unw.png","../../../PRODUCT/%s_%s_unw_phase.png" % (mydir,ss))
     copyfile("colorized_unw.png.aux.xml","../../../PRODUCT/%s_%s_unw_phase.png.aux.xml" % (mydir,ss))

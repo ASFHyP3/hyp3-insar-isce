@@ -3,8 +3,6 @@
     <component name="topsinsar">
         <property name="do unwrap">True</property>
         <property name="unwrapper name">snaphu_mcf</property>
-        <property name="do unwrap 2 stage">True</property>
-        <property name="unwrapper 2 stage name">MCF</property> 
     	<component name="master">
       		<property name="output directory">master</property>
       		<property name="swath number">1</property>

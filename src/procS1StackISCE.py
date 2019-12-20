@@ -164,10 +164,10 @@ def makeMetadataFile(basedir,ss):
 ##########################################################################
 def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
 
-    if (roi is None and ss is None):
+    if roi is None and ss is None:
         print("ERROR: must specifiy one of ROI or SS")
         sys.exit(1)
-    if (roi is not None and ss is not None):
+    if roi is not None and ss is not None:
         print("ERROR: can only specify one of ROI or SS")
         sys.exit(1)
 
@@ -239,7 +239,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         makeDirAndXML(filedates[x],filedates[x+2],filenames[x],filenames[x+2],demFlag,options)
 
     # If we have anything to process
-    if (length > 1) :
+    if length > 1:
         # Make XML files for last pair
         makeDirAndXML(filedates[length-2],filedates[length-1],filenames[length-2],filenames[length-1],demFlag,options)
 

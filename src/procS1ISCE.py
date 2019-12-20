@@ -32,6 +32,8 @@
 # Import all needed modules right away
 #
 #####################
+from __future__ import print_function
+
 import re
 import os
 from lxml import etree
@@ -176,12 +178,12 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
 
     # Pull the orbit files and put them in the proper directory
     (orburl,f1) = getOrbFile(g1)
-    print "Orbit URL is  %s" % orburl
+    print("Orbit URL is  %s" % orburl)
     cmd = 'cd %s/%s; wget %s' % (bname,ssname,orburl)
     execute(cmd)
 
     (orburl,f2) = getOrbFile(g2)
-    print "Orbit URL is  %s" % orburl
+    print("Orbit URL is  %s" % orburl)
     cmd = 'cd %s/%s; wget %s' % (bname,ssname,orburl)
     execute(cmd)
 

@@ -98,14 +98,14 @@ def makeMetadataFile(basedir,ss):
    # Get the platform heading
     for mydir in os.listdir("."):
         if ".SAFE" in mydir and os.path.isdir(mydir):
-	    back = os.getcwd()
+            back = os.getcwd()
             os.chdir("%s/annotation" % mydir)
             for myfile in os.listdir("."):
                 if "001.xml" in myfile:
                     root = etree.parse(myfile)
                     for head in root.iter('platformHeading'):
                         heading = float(head.text)              
-          	        print "Found heading %s" % heading
+                          print "Found heading %s" % heading
                         break
                     else:
                         continue
@@ -127,11 +127,11 @@ def makeMetadataFile(basedir,ss):
             t = re.split('=',line)
             baseline=t[1].strip()
             print "Found baseline %s" % baseline
-	if "geocode.Azimuth looks" in line:
+        if "geocode.Azimuth looks" in line:
             t = re.split('=',line)
             AzLooks=t[1].strip()
             print "Found azimuth looks %s" % AzLooks
-	if "geocode.Range looks" in line:
+        if "geocode.Range looks" in line:
             t = re.split('=',line)
             RgLooks=t[1].strip()
             print "Found range looks %s" % RgLooks
@@ -168,8 +168,8 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         sys.exit(1)
     if (roi is not None and ss is not None):
         print "ERROR: can only specify one of ROI or SS"
-	sys.exit(1)
-	
+        sys.exit(1)
+
     options = {}
 
     if ss is not None:

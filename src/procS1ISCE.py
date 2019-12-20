@@ -67,7 +67,7 @@ def createISCEXML(g1,g2,f1,f2,options):
         dem = etree.Element('property',name='demfilename')
         dem.text = '%s' %  os.path.abspath(options['demname'])
         comp.append(dem)
-	
+
     for comp in root.findall('component/component'):
         if comp.attrib['name'] == 'master':
             for c in comp.findall('property'):
@@ -118,7 +118,7 @@ def isceProcess(bname,ss,step):
 #  Main Entry Point:
 #
 #        ss         = subswath to process
-#	 masterSafe = master SAFE file
+#        masterSafe = master SAFE file
 #        slaveSafe  = slave SAFE file
 #        gbb        = set a geocoding bounding box
 #        xmlFlag    = if True, only create XML file, do not run

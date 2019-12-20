@@ -34,17 +34,16 @@
 #####################
 from __future__ import print_function
 
+from six.moves import range
+
 import sys
 import os
 from lxml import etree
 import re
 import getSubSwath
 from shutil import copyfile
-from shutil import move
 from iscegeo2geotif import convert_files
 import get_dem
-from osgeo import gdal
-import dem2isce
 from execute import execute
 import argparse
 import file_subroutines
@@ -235,7 +234,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
     length=len(filenames)
 
     # Make XML files for pairs and 2nd pairs
-    for x in xrange(length-2):
+    for x in range(length-2):
         makeDirAndXML(filedates[x],filedates[x+1],filenames[x],filenames[x+1],demFlag,options)
         makeDirAndXML(filedates[x],filedates[x+2],filenames[x],filenames[x+2],demFlag,options)
 

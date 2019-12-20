@@ -105,7 +105,7 @@ def createISCEXML(g1,g2,f1,f2,options):
 
 def iscePreProcess(bname,ss):
     cmd = 'cd %s/%s ; source activate isce; source ~/.isce/.isceenv;' % (bname,ss)
-    cmd = cmd + 'topsApp.py --end=preprocess'
+    cmd += 'topsApp.py --end=preprocess'
     execute(cmd)
 
 def isceCalibration(bname,ss):

@@ -79,7 +79,7 @@ def createISCEXML(g1,g2,f1,f2,options):
                     c.text = f1
                 if c.attrib['name'] == 'swath number':
                     c.text = str(options['swath'])
-            if options['roi']==True:
+            if options['roi']:
                 roi = etree.Element('property',name='region of interest')
                 roi.text = '[%s, %s, %s, %s]' % (options['south'],options['north'],options['west'],options['east'])
                 comp.append(roi)
@@ -91,7 +91,7 @@ def createISCEXML(g1,g2,f1,f2,options):
                     c.text = f2
                 if c.attrib['name'] == 'swath number':
                     c.text = str(options['swath'])
-            if options['roi']==True:
+            if options['roi']:
                 roi = etree.Element('property',name='region of interest')
                 roi.text = '[%s, %s, %s, %s]' % (options['south'],options['north'],options['west'],options['east'])
                 comp.append(roi)
@@ -206,7 +206,7 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
     #step = ' --dostep=geocode'
     #isceProcess(bname,ssname,step)
 
-    if options['proc'] == True:  
+    if options['proc']:
         isceProcess(bname,ssname,'')
 
 ###########################################################################

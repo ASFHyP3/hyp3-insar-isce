@@ -32,17 +32,18 @@
 # Import all needed modules right away
 #
 #####################
+from __future__ import print_function
+
+from six.moves import range
+
 import sys
 import os
 from lxml import etree
 import re
 import getSubSwath
 from shutil import copyfile
-from shutil import move
 from iscegeo2geotif import convert_files
 import get_dem
-from osgeo import gdal
-import dem2isce
 from execute import execute
 import argparse
 import file_subroutines
@@ -98,14 +99,14 @@ def makeMetadataFile(basedir,ss):
    # Get the platform heading
     for mydir in os.listdir("."):
         if ".SAFE" in mydir and os.path.isdir(mydir):
-	    back = os.getcwd()
+            back = os.getcwd()
             os.chdir("%s/annotation" % mydir)
             for myfile in os.listdir("."):
                 if "001.xml" in myfile:
                     root = etree.parse(myfile)
                     for head in root.iter('platformHeading'):
                         heading = float(head.text)              
-          	        print "Found heading %s" % heading
+                        print("Found heading %s" % heading)
                         break
                     else:
                         continue
@@ -122,19 +123,19 @@ def makeMetadataFile(basedir,ss):
         if "subset.Overlap" in line and "start time" in line:
             t = re.split('=',line)
             utctime=t[1].strip()
-            print "Found utctime %s" % utctime
+            print("Found utctime %s" % utctime)
         if "Bperp at midrange for first common burst" in line:
             t = re.split('=',line)
             baseline=t[1].strip()
-            print "Found baseline %s" % baseline
-	if "geocode.Azimuth looks" in line:
+            print("Found baseline %s" % baseline)
+        if "geocode.Azimuth looks" in line:
             t = re.split('=',line)
             AzLooks=t[1].strip()
-            print "Found azimuth looks %s" % AzLooks
-	if "geocode.Range looks" in line:
+            print("Found azimuth looks %s" % AzLooks)
+        if "geocode.Range looks" in line:
             t = re.split('=',line)
             RgLooks=t[1].strip()
-            print "Found range looks %s" % RgLooks
+            print("Found range looks %s" % RgLooks)
     g.close()
     os.chdir("../..")
 
@@ -163,13 +164,13 @@ def makeMetadataFile(basedir,ss):
 ##########################################################################
 def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
 
-    if (roi is None and ss is None):
-        print "ERROR: must specifiy one of ROI or SS"
+    if roi is None and ss is None:
+        print("ERROR: must specifiy one of ROI or SS")
         sys.exit(1)
-    if (roi is not None and ss is not None):
-        print "ERROR: can only specify one of ROI or SS"
-	sys.exit(1)
-	
+    if roi is not None and ss is not None:
+        print("ERROR: can only specify one of ROI or SS")
+        sys.exit(1)
+
     options = {}
 
     if ss is not None:
@@ -181,8 +182,8 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
 
     (filenames,filedates) = file_subroutines.get_file_list()
 
-    print filenames
-    print filedates
+    print(filenames)
+    print(filedates)
 
     # If no ROI is given, determine one from first file
     if roi is None:
@@ -196,12 +197,12 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         elif options['swath']==3:
             name = "003.xml"
         else:
-            print "Invalid sub-swath specified %s" % options['swath']
+            print("Invalid sub-swath specified %s" % options['swath'])
 
         for myfile in os.listdir(mydir):
             if name in myfile:      
                 myxml = "%s/annotation/%s" % (filenames[0],myfile)
-        print "Found annotation file %s" % myxml
+        print("Found annotation file %s" % myxml)
     
         lat_max,lat_min,lon_max,lon_min = getSubSwath.get_bounding_box(myxml)
     
@@ -219,7 +220,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         options['swath'], roi = getSubSwath.SelectSubswath(filenames[0],options['west'],options['south'],options['east'],options['north'])
         if options['swath'] == 0:
             sys.exit("ERROR: No overlap of bounding box with imagery")
-        print "Found subswath %s to process" % options['swath']
+        print("Found subswath %s to process" % options['swath'])
     
         options['south']=roi[0]
         options['north']=roi[1]
@@ -233,12 +234,12 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
     length=len(filenames)
 
     # Make XML files for pairs and 2nd pairs
-    for x in xrange(length-2):
+    for x in range(length-2):
         makeDirAndXML(filedates[x],filedates[x+1],filenames[x],filenames[x+1],demFlag,options)
         makeDirAndXML(filedates[x],filedates[x+2],filenames[x],filenames[x+2],demFlag,options)
 
     # If we have anything to process
-    if (length > 1) :
+    if length > 1:
         # Make XML files for last pair
         makeDirAndXML(filedates[length-2],filedates[length-1],filenames[length-2],filenames[length-1],demFlag,options)
 
@@ -248,11 +249,11 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         # Run through directories processing ifgs and collecting results as we go
         for mydir in os.listdir("."):
             if len(mydir) == 31 and os.path.isdir(mydir) and "_20" in mydir:
-                print "Processing directory %s" % mydir
+                print("Processing directory %s" % mydir)
                 ss = 'iw'+str(options['swath'])
                 isceProcess(mydir,ss," ")
                 if os.path.isdir("%s/%s/merged" % (mydir,ss)):
-                    print "Collecting directory %s" % mydir
+                    print("Collecting directory %s" % mydir)
                     getImageFiles(mydir,ss,options)
                     makeMetadataFile(mydir,ss)
 

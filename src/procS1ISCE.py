@@ -38,7 +38,8 @@ import re
 import os
 from lxml import etree
 import argparse
-from get_orb import getOrbFile
+import shutil
+from get_orb import downloadSentinelOrbitFile
 from execute import execute
 
 def createBaseDir(bname):
@@ -177,17 +178,15 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
     prepDirISCE(bname,ssname)
 
     # Pull the orbit files and put them in the proper directory
-    (orburl,f1) = getOrbFile(g1)
-    print("Orbit URL is  %s" % orburl)
-    cmd = 'cd %s/%s; wget %s' % (bname,ssname,orburl)
-    execute(cmd)
+    destDir = os.path.join(bname,ssname)
 
-    (orburl,f2) = getOrbFile(g2)
-    print("Orbit URL is  %s" % orburl)
-    cmd = 'cd %s/%s; wget %s' % (bname,ssname,orburl)
-    execute(cmd)
+    orbFileName1,tmp =  downloadSentinelOrbitFile(g1)
+    shutil.move(orbFileName1,destDir)
 
-    createISCEXML(g1,g2,f1,f2,options)
+    orbFileName2,tmp =  downloadSentinelOrbitFile(g2)
+    shutil.move(orbFileName2,destDir)
+
+    createISCEXML(g1,g2,orbFileName1,orbFileName2,options)
 
     # Process through preprocess
     #iscePreProcess(bname,ssname)

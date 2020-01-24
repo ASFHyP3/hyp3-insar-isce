@@ -43,7 +43,7 @@ import re
 import getSubSwath
 from shutil import copyfile
 from iscegeo2geotif import convert_files
-import get_dem
+from get_dem import get_ISCE_dem
 from execute import execute
 import argparse
 import file_subroutines
@@ -228,7 +228,7 @@ def procS1StackISCE(csvFile=None,demFlag=False,roi=None,ss=None):
         options['east']=roi[3]
 
     if demFlag:
-        get_dem.get_ISCE_dem(options['west'],options['south'],options['east'],options['north'],"stack_dem.dem","stack_dem.dem.xml")
+        get_ISCE_dem(options['west'],options['south'],options['east'],options['north'],"stack_dem.dem","stack_dem.dem.xml")
         options['demname'] = "stack_dem.dem"
 
     length=len(filenames)

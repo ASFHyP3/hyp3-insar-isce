@@ -37,7 +37,7 @@ import os
 from lxml import etree
 import argparse
 import shutil
-from get_orb import downloadSentinelOrbitFile_2
+from get_orb import downloadSentinelOrbitFile
 from execute import execute
 
 def createBaseDir(bname):
@@ -178,10 +178,10 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
     # Pull the orbit files and put them in the proper directory
     destDir = os.path.join(bname,ssname)
 
-    orbFileName1,tmp =  downloadSentinelOrbitFile_2(g1)
+    orbFileName1,tmp =  downloadSentinelOrbitFile(g1)
     shutil.move(orbFileName1,destDir)
 
-    orbFileName2,tmp =  downloadSentinelOrbitFile_2(g2)
+    orbFileName2,tmp =  downloadSentinelOrbitFile(g2)
     shutil.move(orbFileName2,destDir)
 
     createISCEXML(g1,g2,orbFileName1,orbFileName2,options)

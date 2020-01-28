@@ -32,11 +32,14 @@
 # Import all needed modules right away
 #
 #####################
+from __future__ import print_function
+
 import re
 import os
 from lxml import etree
 import argparse
-from get_orb import getOrbFile
+import shutil
+from get_orb import downloadSentinelOrbitFile
 from execute import execute
 
 def createBaseDir(bname):
@@ -67,7 +70,7 @@ def createISCEXML(g1,g2,f1,f2,options):
         dem = etree.Element('property',name='demfilename')
         dem.text = '%s' %  os.path.abspath(options['demname'])
         comp.append(dem)
-	
+
     for comp in root.findall('component/component'):
         if comp.attrib['name'] == 'master':
             for c in comp.findall('property'):
@@ -77,7 +80,7 @@ def createISCEXML(g1,g2,f1,f2,options):
                     c.text = f1
                 if c.attrib['name'] == 'swath number':
                     c.text = str(options['swath'])
-            if options['roi']==True:
+            if options['roi']:
                 roi = etree.Element('property',name='region of interest')
                 roi.text = '[%s, %s, %s, %s]' % (options['south'],options['north'],options['west'],options['east'])
                 comp.append(roi)
@@ -89,7 +92,7 @@ def createISCEXML(g1,g2,f1,f2,options):
                     c.text = f2
                 if c.attrib['name'] == 'swath number':
                     c.text = str(options['swath'])
-            if options['roi']==True:
+            if options['roi']:
                 roi = etree.Element('property',name='region of interest')
                 roi.text = '[%s, %s, %s, %s]' % (options['south'],options['north'],options['west'],options['east'])
                 comp.append(roi)
@@ -103,7 +106,7 @@ def createISCEXML(g1,g2,f1,f2,options):
 
 def iscePreProcess(bname,ss):
     cmd = 'cd %s/%s ; source activate isce; source ~/.isce/.isceenv;' % (bname,ss)
-    cmd = cmd + 'topsApp.py --end=preprocess'
+    cmd += 'topsApp.py --end=preprocess'
     execute(cmd)
 
 def isceCalibration(bname,ss):
@@ -118,7 +121,7 @@ def isceProcess(bname,ss,step):
 #  Main Entry Point:
 #
 #        ss         = subswath to process
-#	 masterSafe = master SAFE file
+#        masterSafe = master SAFE file
 #        slaveSafe  = slave SAFE file
 #        gbb        = set a geocoding bounding box
 #        xmlFlag    = if True, only create XML file, do not run
@@ -175,17 +178,15 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
     prepDirISCE(bname,ssname)
 
     # Pull the orbit files and put them in the proper directory
-    (orburl,f1) = getOrbFile(g1)
-    print "Orbit URL is  %s" % orburl
-    cmd = 'cd %s/%s; wget %s' % (bname,ssname,orburl)
-    execute(cmd)
+    destDir = os.path.join(bname,ssname)
 
-    (orburl,f2) = getOrbFile(g2)
-    print "Orbit URL is  %s" % orburl
-    cmd = 'cd %s/%s; wget %s' % (bname,ssname,orburl)
-    execute(cmd)
+    orbFileName1,tmp =  downloadSentinelOrbitFile(g1)
+    shutil.move(orbFileName1,destDir)
 
-    createISCEXML(g1,g2,f1,f2,options)
+    orbFileName2,tmp =  downloadSentinelOrbitFile(g2)
+    shutil.move(orbFileName2,destDir)
+
+    createISCEXML(g1,g2,orbFileName1,orbFileName2,options)
 
     # Process through preprocess
     #iscePreProcess(bname,ssname)
@@ -204,7 +205,7 @@ def procS1ISCE(ss,masterSafe,slaveSafe,gbb=None,xmlFlag=None,unwrapFlag=None,dem
     #step = ' --dostep=geocode'
     #isceProcess(bname,ssname,step)
 
-    if options['proc'] == True:  
+    if options['proc']:
         isceProcess(bname,ssname,'')
 
 ###########################################################################

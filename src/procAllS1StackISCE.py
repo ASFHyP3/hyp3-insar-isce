@@ -32,6 +32,8 @@
 # Import all needed modules right away
 #
 #####################
+from __future__ import print_function
+
 import sys
 import getSubSwath
 import argparse
@@ -59,7 +61,7 @@ def procAllS1StackISCE(south,north,west,east,csvFile=None,demFlag=None):
 
     if len(swaths) == 0:
         sys.exit("ERROR: No overlap of bounding box with imagery")
-    print "Found %s subswath(s) to process" % len(swaths)
+    print("Found %s subswath(s) to process" % len(swaths))
 
     for subswath in swaths:
         procS1StackISCE(demFlag=demFlag,ss=int(subswath))

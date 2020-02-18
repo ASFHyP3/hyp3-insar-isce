@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Wrapper script for processing a stack of Sentinel-1 with ISCE"""
+"""Create a stack of interferograms using ISCE software"""
 
 from __future__ import print_function
 
@@ -18,27 +18,27 @@ from hyp3lib.iscegeo2geotif import convert_files
 from lxml import etree
 from six.moves import range
 
-from hyp3insarisce.procS1ISCE import procS1ISCE
+from hyp3insarisce.proc_s1_isce import proc_s1_isce
 
 
-def isceProcess(bname, ss, step):
+def isce_process(bname, ss, step):
     cmd = 'cd {bname}/{ss} ; topsApp.py {step}'.format(bname=bname, ss=ss, step=step)
     execute(cmd)
 
 
-def makeDirAndXML(date1, date2, file1, file2, demFlag, options):
+def make_dir_and_xml(date1, date2, file1, file2, dem, options):
     dirname = '{date1}_{date2}'.format(date1=date1, date2=date2)
     if not os.path.exists(dirname):
         os.mkdir(dirname)
     roi = [options['south'], options['north'], options['west'], options['east']]
 
-    if demFlag:
-        procS1ISCE(options['swath'], file1, file2, gbb=roi, xmlFlag=True, unwrapFlag=True, demFile=options['demname'])
+    if dem:
+        proc_s1_isce(options['swath'], file1, file2, gbb=roi, xml=True, unwrap=True, dem=options['demname'])
     else:
-        procS1ISCE(options['swath'], file1, file2, gbb=roi, xmlFlag=True, unwrapFlag=True)
+        proc_s1_isce(options['swath'], file1, file2, gbb=roi, xml=True, unwrap=True)
 
 
-def getImageFiles(mydir, ss, options):
+def get_image_files(mydir, ss, options):
     os.chdir("%s/%s/merged" % (mydir, ss))
     proj = saa.get_utm_proj(options['west'], options['east'], options['south'], options['north'])
     convert_files(True, proj=proj, res=30)
@@ -58,7 +58,7 @@ def getImageFiles(mydir, ss, options):
     os.chdir("../../../")
 
 
-def makeMetadataFile(basedir, ss):
+def make_metadata_file(basedir, ss):
     # Get the platform heading
     back = os.getcwd()
     for mydir in os.listdir("."):
@@ -82,8 +82,8 @@ def makeMetadataFile(basedir, ss):
     baseline = ''
     utctime = ''
     heading = ''
-    RgLooks = ''
-    AzLooks = ''
+    rg_looks = ''
+    az_looks = ''
 
     os.chdir("%s/%s" % (basedir, ss))
     with open('isce.log', 'r') as g:
@@ -102,34 +102,34 @@ def makeMetadataFile(basedir, ss):
                 print("Found baseline %s" % baseline)
             if "geocode.Azimuth looks" in line:
                 t = re.split('=', line)
-                AzLooks = t[1].strip()
-                print("Found azimuth looks %s" % AzLooks)
+                az_looks = t[1].strip()
+                print("Found azimuth looks %s" % az_looks)
             if "geocode.Range looks" in line:
                 t = re.split('=', line)
-                RgLooks = t[1].strip()
-                print("Found range looks %s" % RgLooks)
+                rg_looks = t[1].strip()
+                print("Found range looks %s" % rg_looks)
     os.chdir("../..")
 
     with open('PRODUCT/%s_%s.txt' % (basedir, ss), 'w') as f:
         f.write("baseline: %s\n" % baseline)
         f.write("utctime: %s\n" % utctime)
         f.write("heading: %s\n" % heading)
-        f.write("range looks: %s\n" % RgLooks)
-        f.write("azimuth looks: %s\n" % AzLooks)
+        f.write("range looks: %s\n" % rg_looks)
+        f.write("azimuth looks: %s\n" % az_looks)
 
 
-def procS1StackISCE(csvFile=None, demFlag=False, roi=None, ss=None):
-    """Main Entry Point
+def proc_s1_stack_isce(csv_file=None, dem=False, roi=None, ss=None):
+    """Main process
 
-        csvFile = input file to read granules from and use get_asf.py
-        demFlag = If true, use get_dem instead of opentopo
-        roi     = Region of interest, defined as (south north west east)
-        ss      = Subswath to process
+        csv_file = input file to read granules from and use get_asf.py
+        dem      = If true, use get_dem instead of opentopo
+        roi      = Region of interest, defined as (south north west east)
+        ss       = Subswath to process
 
         roi and ss are mutually exclusive required parameters.
     """
     if roi is None and ss is None:
-        print("ERROR: must specifiy one of ROI or SS")
+        print("ERROR: must specify one of ROI or SS")
         sys.exit(1)
     if roi is not None and ss is not None:
         print("ERROR: can only specify one of ROI or SS")
@@ -140,8 +140,8 @@ def procS1StackISCE(csvFile=None, demFlag=False, roi=None, ss=None):
     if ss is not None:
         options['swath'] = int(ss)
 
-    if csvFile is not None:
-        file_subroutines.prepare_files(csvFile)
+    if csv_file is not None:
+        file_subroutines.prepare_files(csv_file)
 
     (filenames, filedates) = file_subroutines.get_file_list()
 
@@ -190,7 +190,7 @@ def procS1StackISCE(csvFile=None, demFlag=False, roi=None, ss=None):
         options['west'] = roi[2]
         options['east'] = roi[3]
 
-    if demFlag:
+    if dem:
         get_ISCE_dem(options['west'], options['south'], options['east'], options['north'], "stack_dem.dem",
                      "stack_dem.dem.xml")
         options['demname'] = "stack_dem.dem"
@@ -199,33 +199,40 @@ def procS1StackISCE(csvFile=None, demFlag=False, roi=None, ss=None):
 
     # Make XML files for pairs and 2nd pairs
     for x in range(length - 2):
-        makeDirAndXML(filedates[x], filedates[x + 1], filenames[x], filenames[x + 1], demFlag, options)
-        makeDirAndXML(filedates[x], filedates[x + 2], filenames[x], filenames[x + 2], demFlag, options)
+        make_dir_and_xml(filedates[x], filedates[x + 1], filenames[x], filenames[x + 1], dem, options)
+        make_dir_and_xml(filedates[x], filedates[x + 2], filenames[x], filenames[x + 2], dem, options)
 
     # If we have anything to process
     if length > 1:
         # Make XML files for last pair
-        makeDirAndXML(filedates[length - 2], filedates[length - 1], filenames[length - 2], filenames[length - 1],
-                      demFlag, options)
+        make_dir_and_xml(filedates[length - 2], filedates[length - 1], filenames[length - 2], filenames[length - 1],
+                         dem, options)
 
         if not os.path.exists("PRODUCT"):
             os.mkdir("PRODUCT")
 
-        # Run through directories processing ifgs and collecting results as we go
+        # Run through directories processing imgs and collecting results as we go
         for mydir in os.listdir("."):
             if len(mydir) == 31 and os.path.isdir(mydir) and "_20" in mydir:
                 print("Processing directory %s" % mydir)
                 ss = 'iw' + str(options['swath'])
-                isceProcess(mydir, ss, " ")
+                isce_process(mydir, ss, " ")
                 if os.path.isdir("%s/%s/merged" % (mydir, ss)):
                     print("Collecting directory %s" % mydir)
-                    getImageFiles(mydir, ss, options)
-                    makeMetadataFile(mydir, ss)
+                    get_image_files(mydir, ss, options)
+                    make_metadata_file(mydir, ss)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create a stack of interferograms using ISCE software")
-    parser.add_argument("-f", "--file",
+def main():
+    """Main entrypoint"""
+
+    # entrypoint name can differ from module name, so don't pass 0-arg
+    cli_args = sys.argv[1:] if len(sys.argv) > 1 else None
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(__file__),
+        description=__doc__,
+    )
+    parser.add_argument("-f", "--csv-file",
                         help="Input CSV file of granules, otherwise process all SAFE files in the current directory")
     parser.add_argument("-d", "--dem", action="store_true",
                         help="Use get_dem to get the DEM file instead of opentopo")
@@ -236,6 +243,10 @@ if __name__ == "__main__":
                             "bounding box from first image")
     group.add_argument("-s", "--ss",
                        help="Set the subswath to process. If ROI is specified, calculate subswath")
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
-    procS1StackISCE(csvFile=args.file, demFlag=args.dem, roi=args.roi, ss=args.ss)
+    proc_s1_stack_isce(csv_file=args.csv_file, dem=args.dem, roi=args.roi, ss=args.ss)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Wrapper script for processing Sentinel-1 with ISCE"""
+"""Create a Sentinel-1 interferogram using ISCE software"""
 
 from __future__ import print_function
 
@@ -7,27 +7,28 @@ import argparse
 import os
 import re
 import shutil
+import sys
 
 from hyp3lib.execute import execute
-from hyp3lib.get_orb import downloadSentinelOrbitFile
+from hyp3lib.get_orb import downloadSentinelOrbitFile_2
 from lxml import etree
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
 
-def createBaseDir(bname):
+def create_base_dir(bname):
     if not os.path.exists(bname):
         os.mkdir(bname)
 
 
-def prepDirISCE(bname, ss):
+def prep_dir_isce(bname, ss):
     os.chdir(bname)
     if not os.path.exists(ss):
         os.mkdir(ss)
     os.chdir("..")
 
 
-def createISCEXML(g1, g2, f1, f2, options):
+def create_isce_xml(g1, g2, f1, f2, options):
     template = os.path.join(_HERE, 'etc', 'isceS1template.xml')
     root = etree.parse(template)
 
@@ -87,7 +88,7 @@ def createISCEXML(g1, g2, f1, f2, options):
         root.write(of, pretty_print=True)
 
 
-def iscePreProcess(bname, ss):
+def isce_pre_process(bname, ss):
     cmd = 'cd {bname}/{ss} ; ' \
           'source activate isce; ' \
           'source ~/.isce/.isceenv; ' \
@@ -95,30 +96,23 @@ def iscePreProcess(bname, ss):
     execute(cmd)
 
 
-def isceCalibration(bname, ss):
-    pass
-
-
-def isceProcess(bname, ss, step):
+def isce_process(bname, ss, step):
     cmd = 'cd {bname}/{ss} ; topsApp.py {step}'.format(bname=bname, ss=ss, step=step)
     execute(cmd)
 
 
-def procS1ISCE(ss, masterSafe, slaveSafe, gbb=None, xmlFlag=None, unwrapFlag=None, demFile=None):
-    """Main Entry Point:
+def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None):
+    """Main process
 
-          ss         = subswath to process
-          masterSafe = master SAFE file
-          slaveSafe  = slave SAFE file
-          gbb        = set a geocoding bounding box
-          xmlFlag    = if True, only create XML file, do not run
-          unwrapFlag = if True, turn on unwrapping
-          demFile    = Specify external DEM file to use
+          ss      = subswath to process
+          master  = master SAFE file
+          slave   = slave SAFE file
+          gbb     = set a geocoding bounding box (south north west east)
+          xml     = if True, only create XML file, do not run
+          unwrap  = if True, turn on unwrapping
+          dem     = Specify external DEM file to use
     """
-    options = {'unwrap': False, 'roi': False, 'proc': True, 'gbb': False, 'dem': False}
-
-    if unwrapFlag:
-        options['unwrap'] = True
+    options = {'unwrap': unwrap, 'roi': False, 'proc': xml, 'gbb': False, 'dem': False}
 
     if gbb is not None:
         options['gbb'] = True
@@ -127,16 +121,13 @@ def procS1ISCE(ss, masterSafe, slaveSafe, gbb=None, xmlFlag=None, unwrapFlag=Non
         options['gbb_west'] = gbb[2]
         options['gbb_east'] = gbb[3]
 
-    if xmlFlag:
-        options['proc'] = False
-
-    if demFile is not None:
+    if dem is not None:
         options['dem'] = True
-        options['demname'] = demFile
+        options['demname'] = dem
 
     # g1 and g2 are the two granules that we are processing
-    g1 = masterSafe
-    g2 = slaveSafe
+    g1 = master
+    g2 = slave
 
     t = re.split('_+', g1)
     md = t[4][0:16]
@@ -153,52 +144,62 @@ def procS1ISCE(ss, masterSafe, slaveSafe, gbb=None, xmlFlag=None, unwrapFlag=Non
     print(g1, g2, options)
 
     # Create our base and iwX dir
-    createBaseDir(bname)
-    prepDirISCE(bname, ssname)
+    create_base_dir(bname)
+    prep_dir_isce(bname, ssname)
 
     # Pull the orbit files and put them in the proper directory
-    destDir = os.path.join(bname, ssname)
+    dest_dir = os.path.join(bname, ssname)
 
-    orbFileName1, tmp = downloadSentinelOrbitFile(g1)
-    shutil.move(orbFileName1, destDir)
+    orb_file_name1, tmp = downloadSentinelOrbitFile_2(g1)
+    shutil.move(orb_file_name1, dest_dir)
 
-    orbFileName2, tmp = downloadSentinelOrbitFile(g2)
-    shutil.move(orbFileName2, destDir)
+    orb_file_name2, tmp = downloadSentinelOrbitFile_2(g2)
+    shutil.move(orb_file_name2, dest_dir)
 
-    createISCEXML(g1, g2, orbFileName1, orbFileName2, options)
+    create_isce_xml(g1, g2, orb_file_name1, orb_file_name2, options)
 
     # Process through preprocess
-    # iscePreProcess(bname, ssname)
-
-    # This routine will calibrate the SLCs (eventually)
-    # isceCalibration(bname, ssname)
+    # isce_pre_process(bname, ssname)
 
     # Process through filter
-    # isceProcess(bname, ssname, '--start=computeBaselines --end=filter')
+    # isce_process(bname, ssname, '--start=computeBaselines --end=filter')
 
     # Unwrap if requested
     # if options['unwrap'] == True:
-    #     isceProcess(bname, ssname, ' --dostep=unwrap')
+    #     isce_process(bname, ssname, ' --dostep=unwrap')
 
     # do final geocode
     # step = ' --dostep=geocode'
-    # isceProcess(bname, ssname, step)
+    # isce_process(bname, ssname, step)
 
     if options['proc']:
-        isceProcess(bname, ssname, '')
+        isce_process(bname, ssname, '')
+
+
+def main():
+    """Main entrypoint"""
+
+    # entrypoint name can differ from module name, so don't pass 0-arg
+    cli_args = sys.argv[1:] if len(sys.argv) > 1 else None
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(__file__),
+        description=__doc__,
+    )
+    parser.add_argument("ss", help="Set subswath to process")
+    parser.add_argument("master", help="Master SAFE file")
+    parser.add_argument("slave", help="Slave SAFE file")
+    parser.add_argument("-g", "--gbb", nargs=4, type=float, help="Set geocoding bounding box (south north west east)")
+    parser.add_argument("-x", "--xml", action="store_true", help="Only create XML file,  do not run")
+    parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
+    parser.add_argument("-d", "--dem", help="Specify external DEM file to be used")
+
+    args = parser.parse_args(cli_args)
+
+    proc_s1_isce(
+        args.ss, args.master, args.slave,
+        gbb=args.gbb, xml=args.xml, unwrap=args.unwrap, dem=args.dem
+    )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create an Sentinel-1 interferogram using ISCE software")
-    parser.add_argument("-x", "--xml", action="store_true", help="Only create XML file,  do not run")
-    parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
-    parser.add_argument("-g", "--gbb", nargs=4, type=float, help="Set geocoding bounding box (south north west east)")
-    parser.add_argument("-d", "--dem", help="Specify external DEM file to be used")
-    parser.add_argument("-s", "--ss", required=True, help="Set subswath to process")
-    parser.add_argument("masterSafe", metavar="masterSafe", help="Master SAFE file")
-    parser.add_argument("slaveSafe", metavar="slaveSafe", help="Slave SAFE file")
-    args = parser.parse_args()
-    procS1ISCE(
-        args.ss, args.masterSafe, args.slaveSafe,
-        gbb=args.gbb, xmlFlag=args.xml, unwrapFlag=args.unwrap, demFile=args.dem
-    )
+    main()

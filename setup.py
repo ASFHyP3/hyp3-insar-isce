@@ -34,6 +34,16 @@ setup(
         'six',
     ],
 
+    extras_require={
+        'develop': [
+            'pytest',
+            'pytest-cov',
+            'pytest-console-scripts',
+            'tox',
+            'tox-conda',
+        ]
+    },
+
     packages=find_packages(),
 
     entry_points={'console_scripts': [

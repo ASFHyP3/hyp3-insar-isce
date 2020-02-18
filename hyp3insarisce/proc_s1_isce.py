@@ -9,6 +9,7 @@ import re
 import shutil
 import sys
 
+from hyp3lib import __version__
 from hyp3lib.execute import execute
 from hyp3lib.get_orb import downloadSentinelOrbitFile_2
 from lxml import etree
@@ -192,7 +193,7 @@ def main():
     parser.add_argument("-x", "--xml", action="store_true", help="Only create XML file,  do not run")
     parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
     parser.add_argument("-d", "--dem", help="Specify external DEM file to be used")
-
+    parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
     args = parser.parse_args(cli_args)
 
     proc_s1_isce(

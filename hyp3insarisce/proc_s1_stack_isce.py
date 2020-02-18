@@ -9,8 +9,7 @@ import re
 import sys
 from shutil import copyfile
 
-from hyp3lib import file_subroutines
-from hyp3lib import getSubSwath
+from hyp3lib import file_subroutines, getSubSwath, __version__
 from hyp3lib import saa_func_lib as saa
 from hyp3lib.execute import execute
 from hyp3lib.get_dem import get_ISCE_dem
@@ -243,6 +242,7 @@ def main():
                             "bounding box from first image")
     group.add_argument("-s", "--ss",
                        help="Set the subswath to process. If ROI is specified, calculate subswath")
+    parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
     args = parser.parse_args(cli_args)
 
     proc_s1_stack_isce(csv_file=args.csv_file, dem=args.dem, roi=args.roi, ss=args.ss)

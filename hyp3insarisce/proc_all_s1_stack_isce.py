@@ -7,7 +7,7 @@ import argparse
 import os
 import sys
 
-from hyp3lib import getSubSwath
+from hyp3lib import getSubSwath, __version__
 from hyp3lib.file_subroutines import get_file_list
 from hyp3lib.file_subroutines import prepare_files
 
@@ -52,6 +52,7 @@ def main():
     parser.add_argument("east", help="Maximum longitude")
     parser.add_argument("-f", "--csv-file", help="list of files to download, in csv format")
     parser.add_argument("-d", "--dem", action="store_true", help="Use the ASF DEM heap instead of opentopo")
+    parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
     args = parser.parse_args(cli_args)
 
     proc_all_s1_stack_isce(args.south, args.north, args.west, args.east, csv_file=args.csv_file, dem=args.dem)

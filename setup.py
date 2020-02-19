@@ -23,15 +23,15 @@ setup(
 
     classifiers=[
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         ],
+
+    python_requires='~=3.8',
 
     install_requires=[
         'hyp3lib',
         'hyp3proclib',
-        'importlib_metadata',
         'lxml',
-        'six',
     ],
 
     extras_require={

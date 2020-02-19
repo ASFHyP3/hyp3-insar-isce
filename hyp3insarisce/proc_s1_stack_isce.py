@@ -15,7 +15,6 @@ from hyp3lib.execute import execute
 from hyp3lib.get_dem import get_ISCE_dem
 from hyp3lib.iscegeo2geotif import convert_files
 from lxml import etree
-from six.moves import range
 
 from hyp3insarisce.proc_s1_isce import proc_s1_isce
 

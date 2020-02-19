@@ -58,7 +58,7 @@ def process_insar(cfg, n):
         cfg["email_text"] = "This is a {0}-day InSAR pair from {1} to {2}.".format(delta, sd1, sd2)
 
         subswath = get_extra_arg(cfg, "subswath", "1")
-        process(cfg, 'procS1StackISCE', ["-90", "90", "-180", "180", "-f", list_file, "-d"])
+        process(cfg, 'procAllS1StackISCE.py', ["-90", "90", "-180", "180", "-f", list_file, "-d"])
 
         subdir = os.path.join(cfg['workdir'], 'PRODUCT')
         if not os.path.isdir(subdir):

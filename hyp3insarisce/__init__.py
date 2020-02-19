@@ -3,7 +3,7 @@ HyP3 plugin for InSAR processing with ISCE
 """
 
 # FIXME: Python 3.8+ this should be `from importlib.metadata...`
-from importlib_metadata import version, PackageNotFoundError
+from importlib_metadata import PackageNotFoundError, version
 
 
 try:

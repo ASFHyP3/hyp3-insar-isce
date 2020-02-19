@@ -7,7 +7,7 @@ import argparse
 import os
 import sys
 
-from hyp3lib import getSubSwath, __version__
+from hyp3lib import __version__, getSubSwath
 from hyp3lib.file_subroutines import get_file_list
 from hyp3lib.file_subroutines import prepare_files
 

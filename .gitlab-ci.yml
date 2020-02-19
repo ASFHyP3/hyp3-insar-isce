@@ -1,0 +1,189 @@
+# setuptools-scm doesn't work well with a shallow clone, see:
+#    https://docs.gitlab.com/ee/ci/yaml/#shallow-cloning
+variables:
+  GIT_DEPTH: 0
+
+.conda_template: &before_conda_env
+  - source $HOME/.bashrc
+  - conda update -n base -c defaults conda
+  - conda install -c conda-forge -y tox tox-conda
+
+.before_template: &before_defaults
+  - python3 -m pip install --upgrade pip
+  - python3 -m pip install --upgrade setuptools wheel twine s3pypi "setuptools-scm[toml]" importlib_metadata
+
+default:
+  image:
+    name: continuumio/miniconda3:latest
+    entrypoint: ["/bin/bash"]
+  # Tags are not(!) inherited by jobs, contrary to the docs.
+  # See: https://gitlab.com/gitlab-org/gitlab/issues/194312
+  # tags:
+  #   - kubernetes
+  before_script:
+    - *before_defaults
+
+stages:
+    # TODO: - tools-bot
+    - static analysis
+    - test
+    - dependancy analysis
+    - package
+    - dockerize
+    - verify
+    # TODO: - trigger
+
+
+bandit SAST:
+  stage: static analysis
+  tags:
+    - kubernetes
+  before_script:
+    - *before_defaults
+    - python3 -m pip install bandit
+  script:
+    - bandit -r hyp3insarisce || true  # suppress error for this run
+    - bandit -r hyp3insarisce -f html -o bandit_report.html
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - bandit_report.html
+
+trufflehog secrets:
+  stage: static analysis
+  tags:
+    - kubernetes
+  before_script:
+    - *before_defaults
+    - python3 -m pip install trufflehog gitdb2=="2.*"
+  script:
+    - export LAST_TAG_HASH=$(git show-ref --hash -- $(git describe --abbrev=0))
+    - trufflehog --regex --entropy True --since_commit "${LAST_TAG_HASH}" file://"${PWD}" > trufflehog_report.txt
+  artifacts:
+    when: on_failure
+    paths:
+      - trufflehog_report.txt
+
+gitleaks:
+  stage: static analysis
+  tags:
+    - kubernetes
+  image:
+    name: "zricethezav/gitleaks"
+    entrypoint: ["/bin/bash"]
+  before_script: []
+  script:
+    - export LAST_TAG_HASH=$(git show-ref --hash -- $(git describe --abbrev=0))
+    # NOTE: commit range goes back into history; commit-from == HEAD by default
+    - gitleaks -v --repo-path=./ --commit-to="${LAST_TAG_HASH}" --report=gitleaks_report.json
+  artifacts:
+    when: on_failure
+    paths:
+      - gitleaks_report.json
+
+flake8:
+  stage: static analysis
+  tags:
+    - kubernetes
+  before_script:
+    - *before_defaults
+    - python3 -m pip install flake8 flake8-import-order flake8-blind-except flake8-builtins
+  script:
+    - flake8 --max-line-length=120 --statistics --tee --output-file flake8_report.txt
+  artifacts:
+    when: on_failure
+    paths:
+      - flake8_report.txt
+
+pylint:
+  stage: static analysis
+  tags:
+    - kubernetes
+  before_script:
+    - *before_defaults
+    - python3 -m pip install pylint
+  script:
+    - pylint -r y  hyp3insarisce 2>&1 | tee pylint_report.txt
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - pylint_report.txt
+
+xenon:
+  stage: static analysis
+  tags:
+    - kubernetes
+  before_script:
+    - *before_defaults
+    - python3 -m pip install xenon radon
+  script:
+    - xenon -a B -m A -b A hyp3insarisce
+  after_script:
+    - radon cc -s -a -O radon_cc_report.txt hyp3insarisce
+    - radon raw -s -O radon_raw_report.txt hyp3insarisce
+    - radon mi -s -x F -O radon_mi_report.txt hyp3insarisce
+    - radon hal -O radon_hal_report.txt hyp3insarisce
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - radon_*_report.txt
+
+
+pytest 38:
+  stage: test
+  tags:
+    - kubernetes
+  before_script:
+    - *before_conda_env
+  script:
+    - tox --develop -e py38 -- --cov=hyp3insarisce
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
+  artifacts:
+    paths:
+      - pip_freeze_*.txt
+      - conda_export_*.txt
+
+safety 38:
+  stage: dependancy analysis
+  tags:
+    - kubernetes
+  before_script:
+    - *before_defaults
+    - python3 -m pip install safety
+  script:
+    - safety check --full-report --stdin < pip_freeze_py38.txt
+    - awk -F '=' '/^[^#]/ {print $1 "==" $2}' conda_export_py38.txt | safety check --full-report --stdin
+  needs:
+    - job: "pytest 38"
+      artifacts: true
+
+
+package S3 PyPI:
+  stage: package
+  tags:
+    - kubernetes
+  script:
+    - echo "Building version $(python3 setup.py --version)"
+    - python3 setup.py sdist bdist_wheel
+    - echo "Uploading version $(python3 setup.py --version) to S3-PyPI"
+    - s3pypi --bucket hyp3-pypi --verbose
+
+
+# TODO Dockerize
+
+
+test S3 PyPI:
+  stage: verify
+  tags:
+    - kubernetes
+  before_script:
+    - *before_conda_env
+    - *before_defaults
+    - export SDIST_VERSION=$(python3 setup.py --version)
+  script:
+    - tox -e py38-verify
+
+# TODO: Verify Docker Container...

@@ -186,4 +186,6 @@ test S3 PyPI:
   script:
     - tox -e py38-verify
 
-# TODO: Verify Docker Container...
+# TODO: Verify and scan docker container...
+#       * static analysis: https://github.com/optiopay/klar
+#       * Or: https://anchore.com/opensource/

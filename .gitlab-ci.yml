@@ -173,6 +173,22 @@ package S3 PyPI:
 
 
 # TODO Dockerize
+Dockerize:
+  stage: dockerize
+  tags:
+    - docker
+  before_script:
+    - python2 -m pip install --user colorama
+    - python3 -m pip install --user "setuptools>=42" wheel "setuptools-scm[toml]>=3.4"
+  script:
+    - export SDIST_VERSION=$(python3 setup.py --version)
+    - docker build --no-cache -t ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_} --build-arg S3_PYPI_HOST=${S3_PYPI_HOST} .
+    # - aws ecr get-login-password | docker login --username AWS --password-stdin ${HYP3_REGISTRY}
+    - $(aws ecr get-login --no-include-email)
+    - docker push ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_}
+    # FIXME: Move down to verify job -- only push latest *after* container analysis passes
+    - docker tag ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_} ${HYP3_REGISTRY}/hyp3-insar-isce:latest
+    - docker push ${HYP3_REGISTRY}/hyp3-insar-isce:latest
 
 
 test S3 PyPI:
@@ -186,6 +202,19 @@ test S3 PyPI:
   script:
     - tox -e py38-verify
 
+
 # TODO: Verify and scan docker container...
 #       * static analysis: https://github.com/optiopay/klar
 #       * Or: https://anchore.com/opensource/
+#       * See: https://docs.gitlab.com/ee/user/application_security/container_scanning/
+# ----------------------------------------------------------------------------------------------------------------------
+#Test container:
+#  stage: verify
+#  tags:
+#    - docker
+#  script:
+#    - export SDIST_VERSION=$(python3 setup.py --version)
+#    # DO VERIFY
+#    - docker tag ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_} ${HYP3_REGISTRY}/hyp3-insar-isce:latest
+#    - aws ecr get-login-password | docker login --username AWS --password-stdin ${HYP3_REGISTRY}
+#    - docker push ${HYP3_REGISTRY}/hyp3-insar-isce:latest

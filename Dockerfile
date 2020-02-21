@@ -3,7 +3,7 @@ FROM continuumio/miniconda3:4.7.12-alpine
 ENV PATH=/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 USER 0
-RUN apk add --no-cache bash && \
+RUN apk add --no-cache bash wget && \
     rm /home/anaconda/.profile && \
     echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/anaconda/.profile && \
     chown anaconda:anaconda /home/anaconda/.profile
@@ -37,10 +37,13 @@ CMD ["-v"]
 #       * -t hyp3-insar-isce:latest
 
 # NOTE: Steps for rsunning this container:
-#    * mount the `.hyp3` dir to '/home/anaonda/.hyp3'
-#       * should have at least `proc.cfg` in it
-#       * needs .hyp3/lock and .hyp3/log dirs to exist and be witeable by the
-#         container user -- easiest to chmod 777 them, but could play the uid
-#         gid game
+#    * mount the `.hyp3` dir to /home/anaonda/.hyp3
+#       * should have in it:
+#           * proc.cfg
+#           * get_asf.cfg
+#           * needs .hyp3/lock and .hyp3/log dirs to exist and be witeable by the
+#             container user -- easiest to chmod 777 them, but could play the uid
+#             gid game
 #   * mount something to /data/hyp3_workdir that is witeable by the container
 #     user -- easiest to chmod 777 them, but could play the uid gid game
+#   * mount `dotnetrc` to `/home/ancaonda/.netrc

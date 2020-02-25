@@ -172,7 +172,7 @@ package S3 PyPI:
     - s3pypi --bucket hyp3-pypi --verbose
 
 
-# TODO Dockerize
+# TODO: * annotations -- https://github.com/opencontainers/image-spec/blob/master/annotations.md
 Dockerize:
   stage: dockerize
   tags:

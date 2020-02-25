@@ -39,9 +39,6 @@ def proc_all_s1_stack_isce(south, north, west, east, csv_file=None, dem=None):
 
 def main():
     """Main entrypoint"""
-
-    # entrypoint name can differ from module name, so don't pass 0-arg
-    cli_args = sys.argv[1:] if len(sys.argv) > 1 else None
     parser = argparse.ArgumentParser(
         prog=os.path.basename(__file__),
         description=__doc__,
@@ -53,7 +50,7 @@ def main():
     parser.add_argument("-f", "--csv-file", help="list of files to download, in csv format")
     parser.add_argument("-d", "--dem", action="store_true", help="Use the ASF DEM heap instead of opentopo")
     parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
-    args = parser.parse_args(cli_args)
+    args = parser.parse_args()
 
     proc_all_s1_stack_isce(args.south, args.north, args.west, args.east, csv_file=args.csv_file, dem=args.dem)
 

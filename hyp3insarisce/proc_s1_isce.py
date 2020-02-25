@@ -7,7 +7,6 @@ import argparse
 import os
 import re
 import shutil
-import sys
 
 from hyp3lib import __version__
 from hyp3lib.execute import execute
@@ -179,9 +178,6 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
 
 def main():
     """Main entrypoint"""
-
-    # entrypoint name can differ from module name, so don't pass 0-arg
-    cli_args = sys.argv[1:] if len(sys.argv) > 1 else None
     parser = argparse.ArgumentParser(
         prog=os.path.basename(__file__),
         description=__doc__,
@@ -194,7 +190,7 @@ def main():
     parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
     parser.add_argument("-d", "--dem", help="Specify external DEM file to be used")
     parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
-    args = parser.parse_args(cli_args)
+    args = parser.parse_args()
 
     proc_s1_isce(
         args.ss, args.master, args.slave,

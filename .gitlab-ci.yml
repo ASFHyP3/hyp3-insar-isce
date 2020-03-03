@@ -36,8 +36,6 @@ stages:
 
 bandit SAST:
   stage: static analysis
-  tags:
-    - kubernetes
   before_script:
     - *before_defaults
     - python3 -m pip install bandit
@@ -52,8 +50,6 @@ bandit SAST:
 
 trufflehog secrets:
   stage: static analysis
-  tags:
-    - kubernetes
   before_script:
     - *before_defaults
     - python3 -m pip install trufflehog gitdb2=="2.*"
@@ -67,8 +63,6 @@ trufflehog secrets:
 
 gitleaks:
   stage: static analysis
-  tags:
-    - kubernetes
   image:
     name: "zricethezav/gitleaks"
     entrypoint: ["/bin/bash"]
@@ -84,8 +78,6 @@ gitleaks:
 
 flake8:
   stage: static analysis
-  tags:
-    - kubernetes
   before_script:
     - *before_defaults
     - python3 -m pip install flake8 flake8-import-order flake8-blind-except flake8-builtins
@@ -98,8 +90,6 @@ flake8:
 
 pylint:
   stage: static analysis
-  tags:
-    - kubernetes
   before_script:
     - *before_defaults
     - python3 -m pip install pylint
@@ -113,8 +103,6 @@ pylint:
 
 xenon:
   stage: static analysis
-  tags:
-    - kubernetes
   before_script:
     - *before_defaults
     - python3 -m pip install xenon radon
@@ -132,39 +120,33 @@ xenon:
       - radon_*_report.txt
 
 
-pytest 38:
+pytest 37:
   stage: test
-  tags:
-    - kubernetes
   before_script:
     - *before_conda_env
   script:
-    - tox --develop -e py38 -- --cov=hyp3insarisce
+    - tox --develop -e py37 -- --cov=hyp3insarisce
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
   artifacts:
     paths:
       - pip_freeze_*.txt
       - conda_export_*.txt
 
-safety 38:
+safety 37:
   stage: dependancy analysis
-  tags:
-    - kubernetes
   before_script:
     - *before_defaults
     - python3 -m pip install safety
   script:
-    - safety check --full-report --stdin < pip_freeze_py38.txt
-    - awk -F '=' '/^[^#]/ {print $1 "==" $2}' conda_export_py38.txt | safety check --full-report --stdin
+    - safety check --full-report --stdin < pip_freeze_py37.txt
+    - awk -F '=' '/^[^#]/ {print $1 "==" $2}' conda_export_py37.txt | safety check --full-report --stdin
   needs:
-    - job: "pytest 38"
+    - job: "pytest 37"
       artifacts: true
 
 
 package S3 PyPI:
   stage: package
-  tags:
-    - kubernetes
   script:
     - echo "Building version $(python3 setup.py --version)"
     - python3 setup.py sdist bdist_wheel
@@ -172,7 +154,6 @@ package S3 PyPI:
     - s3pypi --bucket hyp3-pypi --verbose
 
 
-# TODO: * annotations -- https://github.com/opencontainers/image-spec/blob/master/annotations.md
 Dockerize:
   stage: dockerize
   tags:
@@ -180,9 +161,18 @@ Dockerize:
   before_script:
     - python2 -m pip install --user colorama
     - python3 -m pip install --user "setuptools>=42" wheel "setuptools-scm[toml]>=3.4"
-  script:
     - export SDIST_VERSION=$(python3 setup.py --version)
-    - docker build --no-cache -t ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_} --build-arg S3_PYPI_HOST=${S3_PYPI_HOST} .
+    - export CI_JOB_TIMESTAMP=$(date --utc --rfc-3339=seconds)
+    - aws s3 cp s3://hyp3-docker/software/isce-2.0.0_20160906.tar.gz .
+    - tar -zxvf isce-2.0.0_20160906.tar.gz
+
+  script:
+    - docker build --no-cache
+      -t ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_}
+      --label org.opencontainers.image.created="${CI_JOB_TIMESTAMP}"
+      --label org.opencontainers.image.version="${SDIST_VERSION}"
+      --label org.opencontainers.image.revision="${CI_COMMIT_SHORT_SHA}"
+      --build-arg S3_PYPI_HOST=${S3_PYPI_HOST} .
     # - aws ecr get-login-password | docker login --username AWS --password-stdin ${HYP3_REGISTRY}
     - $(aws ecr get-login --no-include-email)
     - docker push ${HYP3_REGISTRY}/hyp3-insar-isce:${SDIST_VERSION/+/_}
@@ -193,14 +183,12 @@ Dockerize:
 
 test S3 PyPI:
   stage: verify
-  tags:
-    - kubernetes
   before_script:
     - *before_conda_env
     - *before_defaults
     - export SDIST_VERSION=$(python3 setup.py --version)
   script:
-    - tox -e py38-verify
+    - tox -e py37-verify
 
 
 # TODO: Verify and scan docker container...

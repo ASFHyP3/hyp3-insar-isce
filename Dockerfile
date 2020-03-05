@@ -57,5 +57,5 @@ RUN python -m pip install --no-cache-dir hyp3insarisce \
     --trusted-host "${S3_PYPI_HOST}" \
     --extra-index-url "http://${S3_PYPI_HOST}"
 
-ENTRYPOINT ["/bin/bash", "-l", "-c", "proc_insar_isce.py"]
+ENTRYPOINT ["conda", "run", "-n", "hyp3-insar-isce", "proc_insar_isce.py"]
 CMD ["-v"]

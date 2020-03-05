@@ -38,7 +38,7 @@ WORKDIR /home/conda/
 # FIXME: Check installs once ISCE 2.3.2+ is supported.
 RUN conda create -y -c conda-forge -n hyp3-insar-isce python=3.7 \
     boto3 fftw gdal hdf5 h5py imageio imagemagick libgdal lxml netCDF4 matplotlib numpy \
-    opencv=3.4 pillow proj4 psycopg2 requests scipy six statsmodels \
+    opencv=3.4 pillow proj psycopg2 requests scipy six statsmodels \
     xorg-libxt xorg-libxft xorg-libxmu xorg-libxdmcp openmotif \
     gcc_linux-64 gxx_linux-64 gfortran_linux-64 cython scons openmotif-dev && \
     conda clean -afy && \

@@ -10,7 +10,7 @@ import shutil
 
 from hyp3lib import __version__
 from hyp3lib.execute import execute
-from hyp3lib.get_orb import downloadSentinelOrbitFile_2
+from hyp3lib.get_orb import downloadSentinelOrbitFile
 from lxml import etree
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
@@ -150,10 +150,10 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
     # Pull the orbit files and put them in the proper directory
     dest_dir = os.path.join(bname, ssname)
 
-    orb_file_name1, tmp = downloadSentinelOrbitFile_2(g1)
+    orb_file_name1, tmp = downloadSentinelOrbitFile(g1)
     shutil.move(orb_file_name1, dest_dir)
 
-    orb_file_name2, tmp = downloadSentinelOrbitFile_2(g2)
+    orb_file_name2, tmp = downloadSentinelOrbitFile(g2)
     shutil.move(orb_file_name2, dest_dir)
 
     create_isce_xml(g1, g2, orb_file_name1, orb_file_name2, options)

@@ -58,6 +58,7 @@ def get_image_files(mydir, ss, options):
 
 def make_metadata_file(basedir, ss):
     # Get the platform heading
+    heading = ''
     back = os.getcwd()
     for mydir in os.listdir("."):
         if ".SAFE" in mydir and os.path.isdir(mydir):
@@ -69,17 +70,16 @@ def make_metadata_file(basedir, ss):
                         heading = float(head.text)
                         print("Found heading %s" % heading)
                         break
-                    else:
-                        continue
-                    break
-            else:
-                continue
-            break
+                else:
+                    continue
+                break
+        else:
+            continue
+        break
     os.chdir(back)
 
     baseline = ''
     utctime = ''
-    heading = ''
     rg_looks = ''
     az_looks = ''
 

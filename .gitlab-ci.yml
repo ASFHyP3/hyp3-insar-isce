@@ -88,8 +88,8 @@ bandit SAST:
     - *before_defaults
     - python3 -m pip install bandit
   script:
-    - bandit -r hyp3insarisce || true  # suppress error for this run
-    - bandit -r hyp3insarisce -f html -o bandit_report.html
+    - bandit -r hyp3_insar_isce || true  # suppress error for this run
+    - bandit -r hyp3_insar_isce -f html -o bandit_report.html
   allow_failure: true
   artifacts:
     when: on_failure
@@ -133,7 +133,7 @@ flake8:
     - *before_defaults
     - python3 -m pip install flake8 flake8-import-order flake8-blind-except flake8-builtins
   script:
-    - flake8 --max-line-length=120 --import-order-style=pycharm --application-import-names hyp3insarisce --statistics --tee --output-file flake8_report.txt
+    - flake8 --max-line-length=120 --import-order-style=pycharm --application-import-names hyp3_insar_isce --statistics --tee --output-file flake8_report.txt
   artifacts:
     when: on_failure
     paths:
@@ -146,7 +146,7 @@ pylint:
     - *before_defaults
     - python3 -m pip install pylint
   script:
-    - pylint -r y  hyp3insarisce 2>&1 | tee pylint_report.txt
+    - pylint -r y  hyp3_insar_isce 2>&1 | tee pylint_report.txt
   allow_failure: true
   artifacts:
     when: on_failure
@@ -160,12 +160,12 @@ xenon:
     - *before_defaults
     - python3 -m pip install xenon radon
   script:
-    - xenon -a B -m A -b A hyp3insarisce
+    - xenon -a B -m A -b A hyp3_insar_isce
   after_script:
-    - radon cc -s -a -O radon_cc_report.txt hyp3insarisce
-    - radon raw -s -O radon_raw_report.txt hyp3insarisce
-    - radon mi -s -x F -O radon_mi_report.txt hyp3insarisce
-    - radon hal -O radon_hal_report.txt hyp3insarisce
+    - radon cc -s -a -O radon_cc_report.txt hyp3_insar_isce
+    - radon raw -s -O radon_raw_report.txt hyp3_insar_isce
+    - radon mi -s -x F -O radon_mi_report.txt hyp3_insar_isce
+    - radon hal -O radon_hal_report.txt hyp3_insar_isce
   allow_failure: true
   artifacts:
     when: on_failure
@@ -179,7 +179,7 @@ pytest 37:
   before_script:
     - *before_conda_env
   script:
-    - tox --develop -e py37 -- --cov=hyp3insarisce
+    - tox --develop -e py37 -- --cov=hyp3_insar_isce
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
   artifacts:
     paths:

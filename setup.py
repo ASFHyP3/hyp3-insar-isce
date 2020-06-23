@@ -7,7 +7,7 @@ with open(os.path.join(_HERE, 'README.md'), 'r') as f:
     long_desc = f.read()
 
 setup(
-    name='hyp3insarisce',
+    name='hyp3_insar_isce',
     use_scm_version=True,
     description='HyP3 plugin for InSAR processing with ISCE',
     long_description=long_desc,
@@ -48,10 +48,10 @@ setup(
     packages=find_packages(),
 
     entry_points={'console_scripts': [
-        'proc_insar_isce.py = hyp3insarisce.__main__:main',
-        'procAllS1StackISCE.py = hyp3insarisce.proc_all_s1_stack_isce:main',
-        'procS1ISCE.py = hyp3insarisce.proc_s1_isce:main',
-        'procS1StackISCE.py = hyp3insarisce.proc_s1_stack_isce:main',
+        'proc_insar_isce.py = hyp3_insar_isce.__main__:main',
+        'procAllS1StackISCE.py = hyp3_insar_isce.proc_all_s1_stack_isce:main',
+        'procS1ISCE.py = hyp3_insar_isce.proc_s1_isce:main',
+        'procS1StackISCE.py = hyp3_insar_isce.proc_s1_stack_isce:main',
         ]
     },
 

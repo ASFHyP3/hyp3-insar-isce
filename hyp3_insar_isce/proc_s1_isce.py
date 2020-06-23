@@ -189,7 +189,7 @@ def main():
     parser.add_argument("-x", "--xml", action="store_true", help="Only create XML file,  do not run")
     parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
     parser.add_argument("-d", "--dem", help="Specify external DEM file to be used")
-    parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
+    parser.add_argument('--version', action='version', version='hyp3_insar_isce {}'.format(__version__))
     args = parser.parse_args()
 
     proc_s1_isce(

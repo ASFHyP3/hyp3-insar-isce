@@ -22,7 +22,7 @@ from hyp3proclib.file_system import add_citation, cleanup_workdir
 from hyp3proclib.logger import log
 from hyp3proclib.proc_base import Processor
 
-import hyp3insarisce
+import hyp3_insar_isce
 
 
 def write_list_file(list_file, g1, g2):
@@ -111,7 +111,7 @@ def process_insar(cfg, n):
 
 
 def main():
-    processor = Processor('insar_isce', process_insar, sci_version=hyp3insarisce.__version__)
+    processor = Processor('insar_isce', process_insar, sci_version=hyp3_insar_isce.__version__)
     processor.run()
 
 

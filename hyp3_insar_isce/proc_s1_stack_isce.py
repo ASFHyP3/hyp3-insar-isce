@@ -16,7 +16,7 @@ from hyp3lib.get_dem import get_ISCE_dem
 from hyp3lib.iscegeo2geotif import convert_files
 from lxml import etree
 
-from hyp3insarisce.proc_s1_isce import proc_s1_isce
+from hyp3_insar_isce.proc_s1_isce import proc_s1_isce
 
 
 def isce_process(bname, ss, step):
@@ -238,7 +238,7 @@ def main():
                             "bounding box from first image")
     group.add_argument("-s", "--ss",
                        help="Set the subswath to process. If ROI is specified, calculate subswath")
-    parser.add_argument('--version', action='version', version='hyp3insarisce {}'.format(__version__))
+    parser.add_argument('--version', action='version', version='hyp3_insar_isce {}'.format(__version__))
     args = parser.parse_args()
 
     proc_s1_stack_isce(csv_file=args.csv_file, dem=args.dem, roi=args.roi, ss=args.ss)

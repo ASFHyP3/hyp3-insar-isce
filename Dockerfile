@@ -47,13 +47,13 @@ RUN conda create -y -c conda-forge -n hyp3-insar-isce python=3.7 \
 
 # FIXME: Remove once conda-forge ISCE 2.3.2+ is supported.
 COPY --chown=conda:conda isce-2.0.0_20160906 /home/conda/isce-2.0.0_20160906
-COPY --chown=conda:conda hyp3insarisce/etc/install_isce.sh /home/conda/isce-2.0.0_20160906
+COPY --chown=conda:conda hyp3_insar_isce /home/conda/isce-2.0.0_20160906
 RUN pushd isce-2.0.0_20160906 && bash -l install_isce.sh && popd && \
     rm -r isce-2.0.0_20160906
 
 ARG S3_PYPI_HOST
 
-RUN python -m pip install --no-cache-dir hyp3insarisce \
+RUN python -m pip install --no-cache-dir hyp3_insar_isce \
     --trusted-host "${S3_PYPI_HOST}" \
     --extra-index-url "http://${S3_PYPI_HOST}"
 

@@ -16,8 +16,10 @@ LABEL org.opencontainers.image.source="https://github.com/asfadmin/hyp3-insar-is
 # LABEL org.opencontainers.image.version=""
 # LABEL org.opencontainers.image.revision=""
 
-# FIXME: Binutils is needed by ISCE 2.0.0 build; remove once ISCE 2.3.2+ is supported.
-RUN apt-get update && apt-get install -y binutils unzip vim && apt-get clean
+ARG DEBIAN_FRONTEND=noninteractive
+# FIXME: Binutils is needed by ISCE 2.0.0 build; remove once ISCE 2.3.2+ is supported
+RUN apt-get update && apt-get install -y --no-install-recommends binutils unzip vim && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ARG CONDA_GID=1000
 ARG CONDA_UID=1000
@@ -33,29 +35,28 @@ RUN groupadd -g "${CONDA_GID}" --system conda && \
 USER ${CONDA_UID}
 SHELL ["/bin/bash", "-l", "-c"]
 ENV PYTHONDONTWRITEBYTECODE=true
-WORKDIR /home/conda/
+WORKDIR /home/conda
 
-# FIXME: Check installs once ISCE 2.3.2+ is supported.
-RUN conda create -y -c conda-forge -n hyp3-insar-isce python=3.7 \
-    boto3 fftw gdal hdf5 h5py imageio imagemagick libgdal lxml netCDF4 matplotlib numpy \
-    opencv=3.4 pillow proj psycopg2 requests scipy six statsmodels \
-    xorg-libxt xorg-libxft xorg-libxmu xorg-libxdmcp openmotif \
-    gcc_linux-64 gxx_linux-64 gfortran_linux-64 cython scons openmotif-dev && \
+# FIXME: Check env.yml once ISCE 2.3.2+ is supported.
+COPY conda-env.yml /home/conda/conda-env.yml
+
+RUN conda env create -f conda-env.yml && \
     conda clean -afy && \
     conda activate hyp3-insar-isce && \
     sed -i 's/conda activate base/conda activate hyp3-insar-isce/g' /home/conda/.profile
 
 # FIXME: Remove once conda-forge ISCE 2.3.2+ is supported.
 COPY --chown=conda:conda isce-2.0.0_20160906 /home/conda/isce-2.0.0_20160906
-COPY --chown=conda:conda hyp3_insar_isce /home/conda/isce-2.0.0_20160906
+COPY --chown=conda:conda hyp3_insar_isce/etc/install_isce.sh /home/conda/isce-2.0.0_20160906
 RUN pushd isce-2.0.0_20160906 && bash -l install_isce.sh && popd && \
     rm -r isce-2.0.0_20160906
 
 ARG S3_PYPI_HOST
+ARG SDIST_SPEC
 
-RUN python -m pip install --no-cache-dir hyp3_insar_isce \
+RUN python -m pip install --no-cache-dir hyp3_insar_isce${SDIST_SPEC} \
     --trusted-host "${S3_PYPI_HOST}" \
     --extra-index-url "http://${S3_PYPI_HOST}"
 
 ENTRYPOINT ["conda", "run", "-n", "hyp3-insar-isce", "proc_insar_isce.py"]
-CMD ["-v"]
+CMD ["-h"]

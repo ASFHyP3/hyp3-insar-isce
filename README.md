@@ -1,3 +1,3 @@
-# hyp3-insar-isce
+# HyP3 InSAR ISCE
 
-A HyP3 plugin for InSAR processing with ISCE
+HyP3 plugin for InSAR processing with ISCE

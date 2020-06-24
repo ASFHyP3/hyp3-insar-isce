@@ -1,0 +1,57 @@
+name: hyp3-insar-isce
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.7
+  - pip
+  # For packaging, and testing
+  - setuptools
+  - wheel
+  - pytest
+  - pytest-console-scripts
+  - pytest-cov
+  # For running
+  - boto3
+  - cython
+  - fftw
+  - gcc_linux-64
+  - gdal
+  - gfortran_linux-64
+  - gxx_linux-64
+  - h5py
+  - hdf5
+  - imageio
+  - imagemagick
+  - importlib_metadata
+  - libgdal
+  - lxml
+  - matplotlib
+  - netCDF4
+  - numpy
+  - opencv=3.4
+  - openmotif
+  - openmotif-dev
+  - pillow
+  - proj
+  - psycopg2
+  - pyshp
+  - requests
+  - scipy
+  - scons
+  - six
+  - statsmodels
+  - xorg-libxdmcp
+  - xorg-libxft
+  - xorg-libxmu
+  - xorg-libxt
+  - pip:
+    # for packaging and testing
+    - s3pypi
+    - setuptools-scm[toml]
+    - safety
+    # For running
+    - --trusted-host hyp3-pypi.s3-website-us-east-1.amazonaws.com
+      --extra-index-url http://hyp3-pypi.s3-website-us-east-1.amazonaws.com
+    - hyp3lib
+    - hyp3proclib

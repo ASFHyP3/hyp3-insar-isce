@@ -22,11 +22,14 @@ setup(
     include_package_data=True,
 
     classifiers=[
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         ],
 
-    python_requires='~=3.5',
+    python_requires='~=3.7',
 
     install_requires=[
         'hyp3lib',
@@ -40,8 +43,6 @@ setup(
             'pytest',
             'pytest-cov',
             'pytest-console-scripts',
-            'tox',
-            'tox-conda',
         ]
     },
 

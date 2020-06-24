@@ -150,6 +150,8 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         run: |
+          aws s3 cp s3://hyp3-docker/software/isce-2.0.0_20160906.tar.gz .
+          tar -zxvf isce-2.0.0_20160906.tar.gz
           export SDIST_VERSION=${{ needs.package.outputs.SDIST_VERSION }}
           export CI_JOB_TIMESTAMP=$(date --utc --rfc-3339=seconds)
           echo "Building ${HYP3_REGISTRY}/${GITHUB_REPOSITORY##*/}:${SDIST_VERSION/+/_}"

@@ -124,7 +124,6 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
 
     create_isce_xml(g1, g2, os.path.basename(g1_orbit_file), os.path.basename(g2_orbit_file), options)
 
-    # Process through preprocess
     # execute(f'cd {isce_dir} ; topsApp.py --end=preprocess')
 
     # execute(f'cd {isce_dir} ; topsApp.py --start=computeBaselines --end=filter')

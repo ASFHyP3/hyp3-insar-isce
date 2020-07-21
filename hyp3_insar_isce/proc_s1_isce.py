@@ -1,36 +1,21 @@
-#!/usr/bin/env python
 """Create a Sentinel-1 interferogram using ISCE software"""
-
-from __future__ import print_function
 
 import argparse
 import os
 import re
-import shutil
 
-from hyp3lib import __version__
 from hyp3lib.execute import execute
+from hyp3lib.file_subroutines import mkdir_p
 from hyp3lib.get_orb import downloadSentinelOrbitFile
 from lxml import etree
+
+from hyp3_insar_isce import __version__
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
 
-def create_base_dir(bname):
-    if not os.path.exists(bname):
-        os.mkdir(bname)
-
-
-def prep_dir_isce(bname, ss):
-    os.chdir(bname)
-    if not os.path.exists(ss):
-        os.mkdir(ss)
-    os.chdir("..")
-
-
 def create_isce_xml(g1, g2, f1, f2, options):
-    template = os.path.join(_HERE, 'etc', 'isceS1template.xml')
-    root = etree.parse(template)
+    root = etree.parse(os.path.join(_HERE, 'etc', 'isceS1template.xml'))
 
     comp = root.find('component')
     for c in comp.findall('property'):
@@ -88,19 +73,6 @@ def create_isce_xml(g1, g2, f1, f2, options):
         root.write(of, pretty_print=True)
 
 
-def isce_pre_process(bname, ss):
-    cmd = 'cd {bname}/{ss} ; ' \
-          'source activate isce; ' \
-          'source ~/.isce/.isceenv; ' \
-          'topsApp.py --end=preprocess'.format(bname=bname, ss=ss)
-    execute(cmd)
-
-
-def isce_process(bname, ss, step):
-    cmd = 'cd {bname}/{ss} ; topsApp.py {step}'.format(bname=bname, ss=ss, step=step)
-    execute(cmd)
-
-
 def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None):
     """Main process
 
@@ -136,6 +108,7 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
 
     bname = '%s_%s' % (md, sd)
     ssname = 'iw'+str(ss)
+    isce_dir = os.path.join(bname, ssname)
 
     options['bname'] = bname
     options['ss'] = ssname
@@ -143,37 +116,26 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
 
     print(g1, g2, options)
 
-    # Create our base and iwX dir
-    create_base_dir(bname)
-    prep_dir_isce(bname, ssname)
+    mkdir_p(bname)
+    mkdir_p(isce_dir)
 
-    # Pull the orbit files and put them in the proper directory
-    dest_dir = os.path.join(bname, ssname)
+    g1_orbit_file, _ = downloadSentinelOrbitFile(g1, directory=isce_dir)
+    g2_orbit_file, _ = downloadSentinelOrbitFile(g2, directory=isce_dir)
 
-    orb_file_name1, tmp = downloadSentinelOrbitFile(g1)
-    shutil.move(orb_file_name1, dest_dir)
-
-    orb_file_name2, tmp = downloadSentinelOrbitFile(g2)
-    shutil.move(orb_file_name2, dest_dir)
-
-    create_isce_xml(g1, g2, orb_file_name1, orb_file_name2, options)
+    create_isce_xml(g1, g2, g1_orbit_file, g2_orbit_file, options)
 
     # Process through preprocess
-    # isce_pre_process(bname, ssname)
+    # execute(f'cd {bname}/{ss} ; topsApp.py --end=preprocess')
 
-    # Process through filter
-    # isce_process(bname, ssname, '--start=computeBaselines --end=filter')
+    # execute(f'cd {bname}/{ss} ; topsApp.py --start=computeBaselines --end=filter')
 
-    # Unwrap if requested
     # if options['unwrap'] == True:
-    #     isce_process(bname, ssname, ' --dostep=unwrap')
+    #     execute(f'cd {bname}/{ss} ; topsApp.py --dostep=unwrap')
 
-    # do final geocode
-    # step = ' --dostep=geocode'
-    # isce_process(bname, ssname, step)
+    # execute(f'cd {bname}/{ss} ; topsApp.py --dostep=geocode')
 
     if options['proc']:
-        isce_process(bname, ssname, '')
+        execute(f'cd {bname}/{ss} ; topsApp.py')
 
 
 def main():
@@ -189,7 +151,7 @@ def main():
     parser.add_argument("-x", "--xml", action="store_true", help="Only create XML file,  do not run")
     parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
     parser.add_argument("-d", "--dem", help="Specify external DEM file to be used")
-    parser.add_argument('--version', action='version', version='hyp3_insar_isce {}'.format(__version__))
+    parser.add_argument('--version', action='version', version=f'hyp3_insar_isce {__version__}')
     args = parser.parse_args()
 
     proc_s1_isce(

@@ -1,5 +1,5 @@
 def test_proc_insar_isce(script_runner):
-    ret = script_runner.run('proc_insar_isce.py', '-h')
+    ret = script_runner.run('hyp3_insar_isce', '-h')
     assert ret.success
 
 

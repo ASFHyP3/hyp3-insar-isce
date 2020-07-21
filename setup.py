@@ -32,8 +32,8 @@ setup(
     python_requires='~=3.7',
 
     install_requires=[
-        'hyp3lib',
-        'hyp3proclib',
+        'hyp3lib>=1.4.1,<2',
+        'hyp3proclib~=1.0',
         'importlib_metadata',
         'lxml',
     ],
@@ -49,7 +49,7 @@ setup(
     packages=find_packages(),
 
     entry_points={'console_scripts': [
-        'proc_insar_isce.py = hyp3_insar_isce.__main__:main',
+        'hyp3_insar_isce = hyp3_insar_isce.__main__:main',
         'procAllS1StackISCE.py = hyp3_insar_isce.proc_all_s1_stack_isce:main',
         'procS1ISCE.py = hyp3_insar_isce.proc_s1_isce:main',
         'procS1StackISCE.py = hyp3_insar_isce.proc_s1_stack_isce:main',

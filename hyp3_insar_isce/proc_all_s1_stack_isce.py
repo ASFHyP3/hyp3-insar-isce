@@ -1,16 +1,14 @@
-#!/usr/bin/env python
 """Create All interferograms overlapping the ROI using ISCE"""
-
-from __future__ import print_function
 
 import argparse
 import os
 import sys
 
-from hyp3lib import __version__, getSubSwath
+from hyp3lib import getSubSwath
 from hyp3lib.file_subroutines import get_file_list
 from hyp3lib.file_subroutines import prepare_files
 
+from hyp3_insar_isce import __version__
 from hyp3_insar_isce.proc_s1_stack_isce import proc_s1_stack_isce
 
 
@@ -49,7 +47,7 @@ def main():
     parser.add_argument("east", help="Maximum longitude")
     parser.add_argument("-f", "--csv-file", help="list of files to download, in csv format")
     parser.add_argument("-d", "--dem", action="store_true", help="Use the ASF DEM heap instead of opentopo")
-    parser.add_argument('--version', action='version', version='hyp3_insar_isce {}'.format(__version__))
+    parser.add_argument('--version', action='version', version=f'hyp3_insar_isce {__version__}')
     args = parser.parse_args()
 
     proc_all_s1_stack_isce(args.south, args.north, args.west, args.east, csv_file=args.csv_file, dem=args.dem)

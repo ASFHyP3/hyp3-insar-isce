@@ -122,20 +122,20 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
     g1_orbit_file, _ = downloadSentinelOrbitFile(g1, directory=isce_dir)
     g2_orbit_file, _ = downloadSentinelOrbitFile(g2, directory=isce_dir)
 
-    create_isce_xml(g1, g2, g1_orbit_file, g2_orbit_file, options)
+    create_isce_xml(g1, g2, os.path.basename(g1_orbit_file), os.path.basename(g2_orbit_file), options)
 
     # Process through preprocess
-    # execute(f'cd {bname}/{ss} ; topsApp.py --end=preprocess')
+    # execute(f'cd {isce_dir} ; topsApp.py --end=preprocess')
 
-    # execute(f'cd {bname}/{ss} ; topsApp.py --start=computeBaselines --end=filter')
+    # execute(f'cd {isce_dir} ; topsApp.py --start=computeBaselines --end=filter')
 
     # if options['unwrap'] == True:
-    #     execute(f'cd {bname}/{ss} ; topsApp.py --dostep=unwrap')
+    #     execute(f'cd {isce_dir} ; topsApp.py --dostep=unwrap')
 
-    # execute(f'cd {bname}/{ss} ; topsApp.py --dostep=geocode')
+    # execute(f'cd {isce_dir} ; topsApp.py --dostep=geocode')
 
     if options['proc']:
-        execute(f'cd {bname}/{ss} ; topsApp.py')
+        execute(f'cd {isce_dir} ; topsApp.py')
 
 
 def main():

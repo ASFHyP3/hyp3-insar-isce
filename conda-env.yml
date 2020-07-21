@@ -41,6 +41,7 @@ dependencies:
   - scons
   - six
   - statsmodels
+  - urllib3
   - xorg-libxdmcp
   - xorg-libxft
   - xorg-libxmu

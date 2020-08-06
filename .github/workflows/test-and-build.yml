@@ -40,8 +40,9 @@ jobs:
         shell: bash -l {0}
         run: |
           # Ignore Safety vulerability #38264, GDAL < 3.1, because GAMMA binaries are built against GDAL 2.*
-          python -m pip freeze | safety check --full-report -i 38264 --stdin
-          conda list --export | awk -F '=' '/^[^#]/ {print $1 "==" $2}' | safety check --full-report -i 38264 --stdin
+          # Ignore Safety vulnerability #38489, Scons < 4.0, becasue of deps confics and we're not keeping it once we upgrade ISCE
+          python -m pip freeze | safety check --full-report -i 38264 -i 38489 --stdin
+          conda list --export | awk -F '=' '/^[^#]/ {print $1 "==" $2}' | safety check --full-report -i 38264 -i 38489 --stdin
 
 
   package:

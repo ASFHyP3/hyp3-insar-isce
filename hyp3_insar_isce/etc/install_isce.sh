@@ -26,7 +26,7 @@ PRJ_SCONS_BUILD = $ISCE_SRC_ROOT/_build/isce
 # The directory into which ISCE will be installed
 PRJ_SCONS_INSTALL = $PYTHON_SITE_PACKAGES/isce
 # The location of libraries, such as libstdc++, libfftw3
-LIBPATH = $CONDA_PREFIX/$CONDA_HOST_NAME/sysroot/lib $CONDA_PREFIX/lib
+LIBPATH = $CONDA_PREFIX/$CONDA_HOST_NAME/lib $CONDA_PREFIX/lib
 # The location of Python.h. If you have multiple installations of python
 # make sure that it points to the right one
 CPPPATH = $PYTHON_INCLUDE_DIR $NUMPY_INCLUDE_DIR $CONDA_PREFIX/include

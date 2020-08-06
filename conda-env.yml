@@ -26,7 +26,6 @@ dependencies:
   - imageio
   - imagemagick
   - importlib_metadata
-  - libgcc
   - libgdal
   - lxml
   - matplotlib

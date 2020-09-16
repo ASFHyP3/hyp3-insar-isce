@@ -22,7 +22,7 @@ dependencies:
   - gxx_linux-64
   - h5py
   - hdf5
-  - hyp3lib>=1.4.1,<2
+  - hyp3lib=1.4.1
   - imageio
   - imagemagick
   - importlib_metadata

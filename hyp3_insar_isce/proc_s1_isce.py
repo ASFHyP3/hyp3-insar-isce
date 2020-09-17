@@ -73,16 +73,16 @@ def create_isce_xml(g1, g2, f1, f2, options):
         root.write(of, pretty_print=True)
 
 
-def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None):
+def proc_s1_isce(ss, reference, secondary, gbb=None, xml=False, unwrap=False, dem=None):
     """Main process
 
-          ss      = subswath to process
-          master  = master SAFE file
-          slave   = slave SAFE file
-          gbb     = set a geocoding bounding box (south north west east)
-          xml     = if True, only create XML file, do not run
-          unwrap  = if True, turn on unwrapping
-          dem     = Specify external DEM file to use
+          ss        = subswath to process
+          reference = reference SAFE file
+          secondary = secondary SAFE file
+          gbb       = set a geocoding bounding box (south north west east)
+          xml       = if True, only create XML file, do not run
+          unwrap    = if True, turn on unwrapping
+          dem       = Specify external DEM file to use
     """
     options = {'unwrap': unwrap, 'roi': False, 'proc': xml, 'gbb': False, 'dem': False}
 
@@ -98,8 +98,8 @@ def proc_s1_isce(ss, master, slave, gbb=None, xml=False, unwrap=False, dem=None)
         options['demname'] = dem
 
     # g1 and g2 are the two granules that we are processing
-    g1 = master
-    g2 = slave
+    g1 = reference
+    g2 = secondary
 
     t = re.split('_+', g1)
     md = t[4][0:16]
@@ -144,8 +144,8 @@ def main():
         description=__doc__,
     )
     parser.add_argument("ss", help="Set subswath to process")
-    parser.add_argument("master", help="Master SAFE file")
-    parser.add_argument("slave", help="Slave SAFE file")
+    parser.add_argument("reference", help="Reference SAFE file")
+    parser.add_argument("secondary", help="Secondary SAFE file")
     parser.add_argument("-g", "--gbb", nargs=4, type=float, help="Set geocoding bounding box (south north west east)")
     parser.add_argument("-x", "--xml", action="store_true", help="Only create XML file,  do not run")
     parser.add_argument("-u", "--unwrap", action="store_true", help="Unwrap the phase; default is no unwrapping")
@@ -154,7 +154,7 @@ def main():
     args = parser.parse_args()
 
     proc_s1_isce(
-        args.ss, args.master, args.slave,
+        args.ss, args.reference, args.secondary,
         gbb=args.gbb, xml=args.xml, unwrap=args.unwrap, dem=args.dem
     )
 

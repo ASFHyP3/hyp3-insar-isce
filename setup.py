@@ -32,7 +32,7 @@ setup(
     python_requires='~=3.7',
 
     install_requires=[
-        'hyp3lib>=1.4.1,<2',
+        'hyp3lib==1.4.1',
         'hyp3proclib~=1.0',
         'importlib_metadata',
         'lxml',
